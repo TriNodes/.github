@@ -1,0 +1,46 @@
+name: Reusable Deploy to Production
+
+on:
+  workflow_call:
+    inputs:
+      ftp_dir:
+        required: true
+        type: string
+    secrets:
+      FTP_HOST:
+        required: true
+      FTP_USER:
+        required: true
+      FTP_PASS:
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Next.js (export)
+        run: |
+          npm run build
+          npx next export
+
+      - name: Upload via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASS }}
+          local-dir: ./out
+          server-dir: ${{ inputs.ftp_dir }}
+          dangerous-clean-slate: true
