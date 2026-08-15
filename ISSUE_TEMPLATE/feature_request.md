@@ -1,13 +1,23 @@
 ---
 name: Feature Request
-about: Sugerir uma nova funcionalidade
+about: Suggest a new feature or improvement
+labels: enhancement
 ---
 
-## Descrição
-Explique a ideia.
+## ✨ Feature Description
+Provide a clear and concise description of the feature you would like to see.
 
-## Valor para o projeto
-Porque é importante.
+## 🎯 Problem / Motivation
+Explain what problem this feature solves or why it would be useful.
 
-## Alternativas consideradas
-Outras soluções possíveis.
+## 💡 Proposed Solution
+Describe how you think the feature should work.
+
+## 🔄 Alternatives Considered
+List any alternative solutions or workarounds you’ve tried or considered.
+
+## 📸 Screenshots / Examples
+If applicable, add screenshots, mockups, or examples that help illustrate the idea.
+
+## 🧩 Additional Context
+Add any other context, notes, or details that might help us understand the request.
