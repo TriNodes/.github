@@ -1,2 +1,5 @@
+# Default owner for everything
 * @trinodes
+
+# Owner for GitHub configuration files
 .github/ @trinodes
