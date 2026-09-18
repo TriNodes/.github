@@ -1,0 +1,9 @@
+[
+  { "name": "bug", "color": "d73a4a", "description": "Something is not working" },
+  { "name": "enhancement", "color": "a2eeef", "description": "New feature or improvement" },
+  { "name": "dependencies", "color": "0366d6", "description": "Dependency updates" },
+  { "name": "security", "color": "b60205", "description": "Security-related changes" },
+  { "name": "bump:major", "color": "5319e7", "description": "Major version bump" },
+  { "name": "bump:minor", "color": "1d76db", "description": "Minor version bump" },
+  { "name": "bump:patch", "color": "0e8a16", "description": "Patch version bump" }
+]
