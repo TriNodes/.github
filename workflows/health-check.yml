@@ -1,0 +1,33 @@
+name: Organization Health Check
+
+on:
+  schedule:
+    - cron: "0 9 * * MON" # Every Monday at 09:00
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Fetch organization repositories
+        run: |
+          echo "Fetching repositories..."
+          gh repo list TriNodes --limit 100 > repos.txt
+
+      - name: Validate .github folder
+        run: |
+          echo "Checking for .github folder in each repository..."
+          while read repo; do
+            name=$(echo $repo | awk '{print $1}')
+            echo "Checking $name"
+            gh api repos/$name/contents/.github --silent || echo "⚠ Missing .github folder in $name"
+          done < repos.txt
+
+      - name: Validate CI workflows
+        run: |
+          echo "Checking CI workflows..."
+          while read repo; do
+            name=$(echo $repo | awk '{print $1}')
+            gh api repos/$name/contents/.github/workflows --silent || echo "⚠ Missing CI workflow in $name"
+          done < repos.txt
