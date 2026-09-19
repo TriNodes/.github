@@ -73,6 +73,21 @@ These labels are used by automated release workflows.
 
 ---
 
+## 📌 Labels
+
+`labels.json` (raiz deste repositório) define os labels comuns — `bug`,
+`enhancement`, `dependencies`, `security`, `bump:major`, `bump:minor`,
+`bump:patch`. Definir não os cria: um repositório aplica-os chamando o
+workflow reutilizável que os lê e aplica de facto.
+
+```yaml
+jobs:
+  labels:
+    uses: TriNodes/.github/.github/workflows/sync-labels.yml@main
+```
+
+---
+
 ## 📌 Recommended Project Structure
 src/
 tests/
