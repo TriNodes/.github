@@ -1,0 +1,41 @@
+name: Reusable Sync Labels
+
+# Aplica os labels de labels.json ao repositório que chama este workflow.
+#
+# O ficheiro existia desde sempre, mas nada o lia: 0 dos 9 repositórios da
+# organização tinha os labels "security" ou "bump:*" que ele define — só os
+# labels por omissão do GitHub. Era uma lista de referência morta.
+#
+# Corre no repositório que chamar (uses: TriNodes/.github/.github/workflows/sync-labels.yml@main),
+# não neste. Por isso vai buscar o labels.json por checkout explícito — o
+# checkout normal do caller não o traz.
+
+on:
+  workflow_call:
+
+permissions:
+  issues: write
+
+jobs:
+  sync-labels:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout org defaults
+        uses: actions/checkout@v4
+        with:
+          repository: TriNodes/.github
+          path: org-defaults
+
+      - name: Apply labels
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          jq -c '.[]' org-defaults/labels.json | while read -r row; do
+            name=$(echo "$row" | jq -r '.name')
+            color=$(echo "$row" | jq -r '.color')
+            desc=$(echo "$row" | jq -r '.description')
+            # --force atualiza se já existir, em vez de falhar; um label que
+            # alguém tenha renomeado à mão não deve travar o resto da lista.
+            gh label create "$name" --color "$color" --description "$desc" --force
+          done
