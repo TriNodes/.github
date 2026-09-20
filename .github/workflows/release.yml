@@ -1,5 +1,22 @@
 name: Reusable Release
 
+# Faz o bump da versão e empurra a tag, a partir do repositório que o chama.
+#
+# Duas coisas que este workflow *não* pode resolver sozinho:
+#
+# 1. `contents: write` tem de vir de quem chama. Um workflow chamado nunca
+#    recebe mais permissões do que o GITHUB_TOKEN do chamador já tem, e o
+#    predefinido da organização é só leitura. Quem chama precisa de:
+#
+#      jobs:
+#        release:
+#          permissions:
+#            contents: write
+#          uses: TriNodes/.github/.github/workflows/release.yml@main
+#
+# 2. O repositório que chama precisa de `package.json` e `package-lock.json`,
+#    senão o `npm ci` não tem o que instalar.
+
 on:
   workflow_call:
 
@@ -17,11 +34,21 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
 
       - name: Install dependencies
         run: npm ci
 
+      # `npm version` faz um commit, e um commit precisa de autor. Os runners
+      # do GitHub não trazem identidade git configurada, por isso sem isto o
+      # passo abaixo morria com "Author identity unknown" — depois de o
+      # problema das permissões estar resolvido, que era o que o escondia.
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
       - name: Version bump
         run: |
-          npm version patch -m "chore: bump version to %s"
+          npm version patch -m "chore: bump version to %s [skip ci]"
           git push --follow-tags
