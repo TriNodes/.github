@@ -9,6 +9,9 @@ jobs:
   check:
     runs-on: ubuntu-latest
 
+    env:
+      GH_TOKEN: ${{ github.token }}
+
     steps:
       - name: Fetch organization repositories
         run: |
