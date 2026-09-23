@@ -48,7 +48,33 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
+      # `git push --follow-tags` manda o commit e a tag num único push. Se o
+      # branch tiver avançado entretanto (ex: um PR fez merge enquanto este
+      # job corria), o push do commit é rejeitado mas o da tag pode passar
+      # na mesma — fica uma tag órfã, e todas as corridas seguintes tentam
+      # recriar a mesma versão e chocam com essa tag ("tag already exists").
+      # Por isso aqui separamos os dois: o bump de versão só mexe no working
+      # tree (--no-git-tag-version), fazemos o commit à mão, tentamos o push
+      # do branch com rebase-and-retry, e só criamos e empurramos a tag
+      # depois de o commit estar confirmado no branch remoto.
       - name: Version bump
         run: |
-          npm version patch -m "chore: bump version to %s [skip ci]"
-          git push --follow-tags
+          set -e
+          npm version patch --no-git-tag-version
+          new_version=$(node -p "require('./package.json').version")
+          git commit -am "chore: bump version to ${new_version} [skip ci]"
+
+          attempt=1
+          max_attempts=3
+          until git push; do
+            if [ "$attempt" -ge "$max_attempts" ]; then
+              echo "::error::push do commit de bump falhou depois de ${max_attempts} tentativas"
+              exit 1
+            fi
+            attempt=$((attempt + 1))
+            git fetch origin "${GITHUB_REF_NAME}"
+            git rebase "origin/${GITHUB_REF_NAME}"
+          done
+
+          git tag -a "v${new_version}" -m "v${new_version}"
+          git push origin "v${new_version}"
