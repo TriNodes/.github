@@ -1,48 +1,61 @@
 # Security Policy
 
-## Reporting a Vulnerability
+TriNodes is committed to maintaining the highest standards of security across all repositories.  
+This document outlines how security vulnerabilities must be reported and how we handle them.
 
-If you discover a security vulnerability in any TriNodes repository:
+---
+
+## 🔒 Reporting a Vulnerability
+
+If you discover a security vulnerability:
 
 - **Do not open a public issue**
 - **Do not disclose the vulnerability publicly**
-- **Do not share details in PRs or discussions**
+- **Do not include sensitive details in PRs or discussions**
 
-Instead, report it privately via:
+Instead, report it privately to:
 
-**security@trinodes.com**
+**contact@trinodes.com**
 
 Please include:
 
 - A clear description of the vulnerability  
 - Steps to reproduce  
 - Potential impact  
-- Suggested fix (optional)
+- Suggested remediation (optional)  
+- Any relevant logs or screenshots  
 
-We will acknowledge your report within **48 hours** and work with you to resolve the issue responsibly.
+We acknowledge all reports within **48 hours** and work with you to resolve the issue responsibly.
 
 ---
 
-## Supported Versions
+## 🔐 Supported Versions
 
-Security fixes are applied to:
+Security patches are applied to:
 
 - The latest stable release  
 - Active LTS branches (if applicable)
 
 ---
 
-## Security Practices
+## 🛡 Security Requirements for All Repositories
 
-TriNodes enforces:
+All repositories must have:
 
-- Secret scanning  
-- Dependabot alerts  
+- Secret scanning enabled  
+- Dependabot alerts enabled  
 - CodeQL analysis  
 - OSV scanning  
-- Gitleaks  
+- Gitleaks scanning  
 - Workflow permissions scanning  
 - Sensitive files scanning  
 - Branch protection scanning  
 
-All repositories must comply with these requirements.
+Security workflows **must not** be disabled under any circumstances.
+
+---
+
+## 🧩 Responsible Disclosure
+
+We follow industry-standard responsible disclosure practices.  
+TriNodes does not offer bounties at this time, but we publicly acknowledge contributors who report valid vulnerabilities.
