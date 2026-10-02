@@ -1,50 +1,64 @@
 # TriNodes Developer Handbook
 
-Welcome to TriNodes. This guide explains how to work within the organization.
+Welcome to TriNodes.  
+This handbook provides guidance for contributors, maintainers, and collaborators.
 
 ---
 
-## Getting Started
-- Clone the repository  
-- Install dependencies  
-- Read README.md  
-- Follow CONTRIBUTING.md  
+## 🚀 Getting Started
+
+1. Clone the repository  
+2. Install dependencies  
+3. Read the project README  
+4. Follow CONTRIBUTING.md  
+5. Follow STANDARDS.md  
 
 ---
 
-## Creating a New Repository
-1. Use the TriNodes template  
-2. Add required workflows  
-3. Add CODEOWNERS  
-4. Add labels via sync-labels  
-5. Add documentation  
+## 🏗 Creating a New Repository
+
+All new repositories must:
+
+- Use a TriNodes template  
+- Include required workflows  
+- Include CODEOWNERS  
+- Include labels via sync-labels  
+- Include documentation  
+- Include CI  
+- Include security scanning  
 
 ---
 
-## Working on Features
+## 🔧 Working on Features
+
 - Create a feature branch  
 - Follow commit standards  
 - Write tests  
 - Open a PR  
-- Request review  
+- Request review from CODEOWNERS  
 
 ---
 
-## Releases
+## 🚀 Release Process
+
 - Add bump labels  
-- CI will generate release  
+- CI generates release automatically  
 - Maintainers approve major/minor releases  
+- Release notes are generated automatically  
 
 ---
 
-## Security
+## 🔐 Security Responsibilities
+
 - Never commit secrets  
 - Follow SECURITY.md  
 - Report vulnerabilities privately  
+- Respect governance rules  
 
 ---
 
-## Communication
+## 📬 Communication
+
 - Use issues for questions  
 - Use PRs for changes  
 - Use discussions for ideas  
