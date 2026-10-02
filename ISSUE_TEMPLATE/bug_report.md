@@ -8,34 +8,60 @@ labels: bug
 A clear and concise description of the issue.
 
 ## 🔁 Steps to Reproduce
-Describe the exact steps to reproduce the problem:
-
 1. Go to...
 2. Click on...
 3. Scroll to...
 4. See the error...
 
-## 🎯 Expected Behavior
-Explain what you expected to happen instead.
+### ✔️ Expected Behavior
+What should have happened?
+
+### ❌ Actual Behavior
+What actually happened?
+
+## 🚨 Severity / Impact
+Select the severity of the issue:
+
+- [ ] Low — minor inconvenience  
+- [ ] Medium — affects normal usage  
+- [ ] High — blocks a feature  
+- [ ] Critical — app unusable or data loss  
+
+## 🔄 Reproducibility
+How often does the issue occur?
+
+- Always  
+- Sometimes  
+- Rarely  
+
+## 🗂️ Affected Area
+Which part of the system is affected?
+
+- Frontend  
+- Backend  
+- API  
+- Database  
+- CI/CD  
+- Other  
 
 ## 📸 Screenshots / Videos
 If applicable, add screenshots or video recordings to help illustrate the issue.
 
-## 🧪 Actual Behavior
-Describe what actually happened.
-
 ## 🧩 Environment
 Please provide details about your environment:
 
-- OS: (Windows, macOS, Linux, etc.)
-- Browser: (Chrome, Edge, Firefox, etc.)
-- App Version / Commit Hash:
-- Device: (Desktop, Mobile, Tablet)
-- Additional context:
+- OS:  
+- Browser:  
+- App Version / Commit Hash:  
+- Device:  
+- Additional context:  
 
 ## 📄 Logs
 Paste any relevant logs or error messages here.  
 If the logs are long, attach them as a file instead.
 
+## 🔗 Related Issues / PRs
+List any related issues or pull requests.
+
 ## 📝 Additional Context
-Add any other context, notes, or information that might help diagnose the issue.
+Add any other notes or information that might help diagnose the issue.
