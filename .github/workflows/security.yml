@@ -13,7 +13,21 @@ permissions:
 
 jobs:
   codeql:
-    uses: github/codeql-action/.github/workflows/codeql.yml@v3
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
 
   secret_scan:
     runs-on: ubuntu-latest
@@ -92,6 +106,7 @@ jobs:
 
           for wf in $(ls .github/workflows/*.yml); do
             echo "## $wf" >> scan/workflow-permissions.md
+
             if grep -q "permissions:" "$wf"; then
               echo "- ✔ Permissions declaradas" >> scan/workflow-permissions.md
             else
@@ -169,14 +184,14 @@ jobs:
 
   create_issue_if_vulnerable:
     runs-on: ubuntu-latest
-    needs: [
-      dependency_scan,
-      supply_chain_scan,
-      gitleaks_scan,
-      sensitive_files_scan,
-      workflow_permissions_scan,
-      branch_protection_scan
-    ]
+    needs:
+      - dependency_scan
+      - supply_chain_scan
+      - gitleaks_scan
+      - sensitive_files_scan
+      - workflow_permissions_scan
+      - branch_protection_scan
+
     steps:
       - name: Create issue if vulnerabilities found
         env:
@@ -184,32 +199,26 @@ jobs:
         run: |
           issue_body="## Security Alerts Detected\n\n"
 
-          # Check audit.json
           if grep -q "severity" dependency-audit/audit.json; then
             issue_body+="### ⚠ Vulnerabilidades em dependências\n"
           fi
 
-          # Check OSV
           if grep -q "vulnerability" osv-scan/osv-results.json; then
             issue_body+="### ⚠ Vulnerabilidades de supply chain\n"
           fi
 
-          # Check Gitleaks
           if grep -q "leak" gitleaks-report/gitleaks.json; then
             issue_body+="### ⚠ Segredos expostos\n"
           fi
 
-          # Check sensitive files
           if ! grep -q "Nenhum ficheiro sensível encontrado" sensitive-files/files.md; then
             issue_body+="### ⚠ Ficheiros sensíveis encontrados\n"
           fi
 
-          # Check workflow permissions
           if grep -q "PERIGO" workflow-permissions/workflow-permissions.md; then
             issue_body+="### ⚠ Permissões perigosas nos workflows\n"
           fi
 
-          # Check branch protection
           if grep -q "NÃO está ativo" branch-protection/bp.md; then
             issue_body+="### ⚠ Branch protection desativado\n"
           fi
