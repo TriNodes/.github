@@ -2,12 +2,19 @@ name: Auto Label
 
 on:
   pull_request:
-    types: [opened, synchronize]
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+      - edited
 
 jobs:
   label:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/labeler@v5
+      - name: Apply labels based on changed files
+        uses: actions/labeler@v5
         with:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
