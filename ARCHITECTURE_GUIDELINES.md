@@ -1,43 +1,64 @@
 # Architecture Guidelines
 
-## Principles
-- Simplicity  
-- Modularity  
-- Scalability  
-- Maintainability  
-- Security-first  
+These guidelines define the architectural principles and patterns used across TriNodes projects.
 
 ---
 
-## Backend Guidelines
+## 🧩 Core Principles
+
+- **Simplicity** — avoid unnecessary complexity  
+- **Modularity** — isolate responsibilities  
+- **Scalability** — design for growth  
+- **Maintainability** — prioritize readability and clarity  
+- **Security-first** — enforce secure defaults  
+
+---
+
+## 🛠 Backend Architecture
+
 - Use layered architecture  
 - Separate controllers, services, repositories  
 - Avoid business logic in controllers  
 - Use DTOs for input/output  
-- Use environment variables securely  
+- Use dependency injection where applicable  
+- Follow consistent naming conventions  
 
 ---
 
-## Frontend Guidelines
+## 🎨 Frontend Architecture
+
 - Use component-based architecture  
 - Keep components small and focused  
 - Use hooks for logic  
 - Use context sparingly  
 - Avoid global state unless necessary  
+- Follow accessibility standards  
 
 ---
 
-## API Guidelines
-- REST or GraphQL depending on project  
-- Consistent naming  
-- Versioned endpoints  
-- Clear error handling  
-- Pagination for large datasets  
+## 🔗 API Architecture
+
+- Use REST or GraphQL depending on project  
+- Version endpoints  
+- Provide consistent error handling  
+- Use pagination for large datasets  
+- Document all endpoints  
 
 ---
 
-## Code Quality
-- Follow coding standards  
-- Use linting  
-- Use formatting  
-- Write tests for all logic  
+## 🧪 Quality & Testing
+
+- Write tests for all business logic  
+- Maintain or increase coverage  
+- Use mocks for external services  
+- Ensure deterministic test behavior  
+
+---
+
+## 🔐 Security Architecture
+
+- Validate all inputs  
+- Sanitize outputs  
+- Use secure environment variable handling  
+- Avoid storing secrets locally  
+- Follow OWASP guidelines  
