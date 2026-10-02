@@ -1,39 +1,48 @@
+# Security Policy
 
-Nunca abras uma issue pública com vulnerabilidades.
+## Reporting a Vulnerability
 
----
+If you discover a security vulnerability in any TriNodes repository:
 
-## 📌 Governance & Standards
+- **Do not open a public issue**
+- **Do not disclose the vulnerability publicly**
+- **Do not share details in PRs or discussions**
 
-TriNodes mantém padrões organizacionais:
+Instead, report it privately via:
 
-- Labels sincronizados via `sync-labels.yml`
-- CODEOWNERS aplicados a todos os repositórios
-- Workflows reutilizáveis para CI, lint, tests, release, deploy
-- Security Suite diário
-- Branch protection obrigatório
-- Sem permissões perigosas nos workflows
+**security@trinodes.com**
 
-Contribuições devem respeitar estes padrões.
+Please include:
 
----
+- A clear description of the vulnerability  
+- Steps to reproduce  
+- Potential impact  
+- Suggested fix (optional)
 
-## 📌 Sensitive Files
-
-Nunca commits:
-
-- `.env`
-- `.pem`
-- `.key`
-- `.p12`
-- `.crt`
-- `.cert`
-
-O Security Suite deteta automaticamente estes ficheiros.
+We will acknowledge your report within **48 hours** and work with you to resolve the issue responsibly.
 
 ---
 
-## 📌 Thank You
+## Supported Versions
 
-Obrigado por ajudar a melhorar a TriNodes.  
-A tua contribuição mantém a organização segura, consistente e profissional.
+Security fixes are applied to:
+
+- The latest stable release  
+- Active LTS branches (if applicable)
+
+---
+
+## Security Practices
+
+TriNodes enforces:
+
+- Secret scanning  
+- Dependabot alerts  
+- CodeQL analysis  
+- OSV scanning  
+- Gitleaks  
+- Workflow permissions scanning  
+- Sensitive files scanning  
+- Branch protection scanning  
+
+All repositories must comply with these requirements.
