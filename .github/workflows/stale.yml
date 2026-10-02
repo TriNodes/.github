@@ -1,0 +1,20 @@
+name: Close stale issues and PRs
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v9
+        with:
+          days-before-stale: 30
+          days-before-close: 7
+          stale-issue-message: "Esta issue está inativa há 30 dias."
+          stale-pr-message: "Esta PR está inativa há 30 dias."
+          close-issue-message: "Issue fechada por inatividade."
+          close-pr-message: "PR fechada por inatividade."
+          exempt-issue-labels: "pinned,security"
+          exempt-pr-labels: "pinned,security"
