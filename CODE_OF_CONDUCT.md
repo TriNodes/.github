@@ -1,33 +1,48 @@
 # Code of Conduct
 
-## Our Commitment
-We are committed to providing a welcoming, safe, and productive environment for everyone.
+TriNodes is committed to fostering a respectful, inclusive, and professional environment for all contributors.
 
-## Expected Behavior
-- Be respectful and constructive  
-- Use inclusive language  
-- Accept feedback gracefully  
-- Collaborate professionally  
+---
 
-## Unacceptable Behavior
+## 🌍 Our Standards
+
+### Expected Behavior
+- Demonstrate professionalism and respect  
+- Use inclusive and clear language  
+- Accept constructive feedback  
+- Collaborate effectively  
+- Follow organizational standards and guidelines  
+
+### Unacceptable Behavior
 - Harassment or discrimination  
-- Personal attacks  
-- Sharing sensitive information  
-- Disruptive behavior  
+- Personal attacks or insults  
+- Sharing sensitive or private information  
+- Disruptive or hostile behavior  
+- Intentional violation of security or governance rules  
 
-## Reporting
-If you experience or witness unacceptable behavior:
+---
 
-Contact: **conduct@trinodes.com**
+## 🛠 Enforcement
+
+Violations may result in:
+
+- Formal warning  
+- Temporary suspension from contributions  
+- Permanent removal from the organization  
+- Escalation to TriNodes leadership  
+
+---
+
+## 📬 Reporting Misconduct
+
+To report unacceptable behavior:
+
+**conduct@trinodes.com**
 
 Reports are confidential and handled promptly.
 
-## Enforcement
-Violations may result in:
+---
 
-- Warning  
-- Temporary ban  
-- Permanent ban  
-- Removal from organization repositories  
+## 🙏 Commitment
 
-Thank you for helping maintain a positive community.
+By contributing to TriNodes, you agree to uphold this Code of Conduct.
