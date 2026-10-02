@@ -9,6 +9,7 @@ on:
 permissions:
   contents: read
   security-events: write
+  issues: write
 
 jobs:
   codeql:
@@ -78,34 +79,144 @@ jobs:
           name: gitleaks-report
           path: gitleaks.json
 
-  security_report:
+  workflow_permissions_scan:
     runs-on: ubuntu-latest
-    needs: [codeql, secret_scan, dependency_scan, supply_chain_scan, gitleaks_scan]
-
     steps:
-      - name: Generate consolidated report
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Scan workflow permissions
         run: |
-          echo "# Security Report" > report.md
-          echo "Generated on $(date)" >> report.md
-          echo "" >> report.md
+          mkdir scan
+          echo "# Workflow Permissions Report" > scan/workflow-permissions.md
 
-          echo "## CodeQL" >> report.md
-          echo "- CodeQL scan completed" >> report.md
+          for wf in $(ls .github/workflows/*.yml); do
+            echo "## $wf" >> scan/workflow-permissions.md
+            if grep -q "permissions:" "$wf"; then
+              echo "- ✔ Permissions declaradas" >> scan/workflow-permissions.md
+            else
+              echo "- ❌ Faltam permissões explícitas" >> scan/workflow-permissions.md
+            fi
 
-          echo "## Secret Scanning" >> report.md
-          echo "- Secret scanning completed" >> report.md
+            if grep -q "contents: write" "$wf"; then
+              echo "- ⚠ PERIGO: contents: write encontrado" >> scan/workflow-permissions.md
+            fi
 
-          echo "## Dependency Audit" >> report.md
-          echo "- npm audit report attached" >> report.md
+            if grep -q "id-token: write" "$wf"; then
+              echo "- ⚠ PERIGO: id-token: write encontrado" >> scan/workflow-permissions.md
+            fi
+          done
 
-          echo "## Supply Chain (OSV)" >> report.md
-          echo "- OSV scan completed" >> report.md
-
-          echo "## Gitleaks" >> report.md
-          echo "- Gitleaks scan completed" >> report.md
-
-      - name: Upload consolidated report
+      - name: Upload workflow permissions report
         uses: actions/upload-artifact@v4
         with:
-          name: security-report
-          path: report.md
+          name: workflow-permissions
+          path: scan/workflow-permissions.md
+
+  sensitive_files_scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Scan for sensitive files
+        run: |
+          mkdir sensitive
+          echo "# Sensitive Files Report" > sensitive/files.md
+
+          patterns="*.env *.pem *.p12 *.key *.crt *.cert"
+          found=false
+
+          for p in $patterns; do
+            matches=$(git ls-files "$p")
+            if [ ! -z "$matches" ]; then
+              found=true
+              echo "## $p" >> sensitive/files.md
+              echo "$matches" >> sensitive/files.md
+            fi
+          done
+
+          if [ "$found" = false ]; then
+            echo "Nenhum ficheiro sensível encontrado." >> sensitive/files.md
+          fi
+
+      - name: Upload sensitive files report
+        uses: actions/upload-artifact@v4
+        with:
+          name: sensitive-files
+          path: sensitive/files.md
+
+  branch_protection_scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check branch protection
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "# Branch Protection Report" > bp.md
+
+          if gh api repos/${{ github.repository }}/branches/main/protection --silent >/dev/null 2>&1; then
+            echo "- ✔ Branch protection ativo" >> bp.md
+          else
+            echo "- ❌ Branch protection NÃO está ativo" >> bp.md
+          fi
+
+      - name: Upload branch protection report
+        uses: actions/upload-artifact@v4
+        with:
+          name: branch-protection
+          path: bp.md
+
+  create_issue_if_vulnerable:
+    runs-on: ubuntu-latest
+    needs: [
+      dependency_scan,
+      supply_chain_scan,
+      gitleaks_scan,
+      sensitive_files_scan,
+      workflow_permissions_scan,
+      branch_protection_scan
+    ]
+    steps:
+      - name: Create issue if vulnerabilities found
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          issue_body="## Security Alerts Detected\n\n"
+
+          # Check audit.json
+          if grep -q "severity" dependency-audit/audit.json; then
+            issue_body+="### ⚠ Vulnerabilidades em dependências\n"
+          fi
+
+          # Check OSV
+          if grep -q "vulnerability" osv-scan/osv-results.json; then
+            issue_body+="### ⚠ Vulnerabilidades de supply chain\n"
+          fi
+
+          # Check Gitleaks
+          if grep -q "leak" gitleaks-report/gitleaks.json; then
+            issue_body+="### ⚠ Segredos expostos\n"
+          fi
+
+          # Check sensitive files
+          if ! grep -q "Nenhum ficheiro sensível encontrado" sensitive-files/files.md; then
+            issue_body+="### ⚠ Ficheiros sensíveis encontrados\n"
+          fi
+
+          # Check workflow permissions
+          if grep -q "PERIGO" workflow-permissions/workflow-permissions.md; then
+            issue_body+="### ⚠ Permissões perigosas nos workflows\n"
+          fi
+
+          # Check branch protection
+          if grep -q "NÃO está ativo" branch-protection/bp.md; then
+            issue_body+="### ⚠ Branch protection desativado\n"
+          fi
+
+          if [ "$issue_body" != "## Security Alerts Detected\n\n" ]; then
+            gh issue create \
+              --title "⚠ Security Alerts Detected" \
+              --body "$issue_body" \
+              --label "security"
+          fi
