@@ -1,0 +1,16 @@
+name: Security Scan
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  push:
+    branches: ["main"]
+
+jobs:
+  codeql:
+    uses: github/codeql-action/.github/workflows/codeql.yml@v3
+
+  secret_scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: github/secret-scanning-action@v1
