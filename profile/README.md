@@ -7,6 +7,7 @@ We build modern web applications, automation tools, and internal systems focused
 ---
 
 ## 🚀 What We Do
+
 TriNodes develops and maintains:
 
 - Production-ready applications  
@@ -20,6 +21,7 @@ Our goal is to deliver robust, scalable, and maintainable solutions for real-wor
 ---
 
 ## 📦 Repositories
+
 Inside this organization, you’ll find:
 
 - **Applications** — full production systems  
@@ -33,6 +35,7 @@ Each repository follows our internal standards for quality, documentation, and c
 ---
 
 ## 🛠️ Engineering Standards
+
 All repositories adhere to:
 
 - Issue templates  
@@ -49,6 +52,7 @@ These standards ensure consistency across the entire organization.
 ---
 
 ## 👥 Team
+
 TriNodes is maintained by:
 
 - @trinodes  
@@ -61,7 +65,7 @@ We collaborate to build reliable software and maintain a strong engineering cult
 ---
 
 ## 📬 Contact
+
 For inquiries, reach us at:
 
 **contact@trinodes.com**
-
