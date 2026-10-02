@@ -1,54 +1,83 @@
 # Contributing to TriNodes
 
-Thank you for your interest in contributing to the TriNodes organization.  
-This document explains how to open issues, submit pull requests, and follow our development workflow.
+Obrigado pelo teu interesse em contribuir para a organização **TriNodes**.  
+Este documento explica como abrir issues, submeter pull requests, seguir o nosso workflow de desenvolvimento e manter consistência em toda a organização.
 
 ---
 
 ## 📌 Opening Issues
 
-When opening an issue:
+Quando abrires uma issue:
 
-- Provide a clear and detailed description  
-- Include reproduction steps (if applicable)  
-- Add relevant labels  
-- Use the provided issue templates  
+- Descreve claramente o problema ou pedido
+- Inclui passos de reprodução (se aplicável)
+- Adiciona labels relevantes
+- Usa os templates disponíveis em `.github/ISSUE_TEMPLATE/`
+- Marca com `security` se for relacionado com segurança
+- Marca com `bump:*` se implicar alteração de versão
 
 ---
 
 ## 📌 Submitting Pull Requests
 
-Follow these steps when submitting a PR:
+Segue estes passos ao submeter uma PR:
 
-1. Create a branch:
-   - `feature/<name>`
-   - `fix/<name>`
-   - `refactor/<name>`
+### 1. Cria uma branch com nome consistente
+- `feature/<nome>`
+- `fix/<nome>`
+- `refactor/<nome>`
+- `chore/<nome>`
+- `docs/<nome>`
 
-2. Write commits using **Conventional Commits**
+### 2. Usa **Conventional Commits**
+Exemplos:
+- `feat: adicionar funcionalidade X`
+- `fix: corrigir bug Y`
+- `refactor: melhorar estrutura Z`
+- `docs: atualizar documentação`
+- `chore: tarefas internas`
 
-3. Ensure all CI checks pass
+### 3. Garante que todos os checks passam
+- Lint
+- Tests
+- Build
+- Security Scan
+- Workflow Permissions Scan
 
-4. Add version bump labels if needed:
-   - `bump:major`
-   - `bump:minor`
-   - `bump:patch`
+### 4. Adiciona labels de version bump (se necessário)
+- `bump:major`
+- `bump:minor`
+- `bump:patch`
 
-5. Request review from CODEOWNERS
+### 5. Solicita revisão aos CODEOWNERS
+Os ficheiros são automaticamente atribuídos aos responsáveis definidos em `CODEOWNERS`.
+
+---
+
+## 📌 Development Workflow
+
+Todos os repositórios seguem o mesmo fluxo:
+
+1. Criar branch  
+2. Commitar com Conventional Commits  
+3. Abrir PR  
+4. Passar CI  
+5. Revisão dos CODEOWNERS  
+6. Merge  
+7. Release automático (se aplicável)
 
 ---
 
 ## 📌 Running Projects Locally
 
-Each repository contains its own README with setup instructions.  
-Please follow the instructions specific to that project.
+Cada repositório contém um README com instruções específicas.  
+Segue sempre as instruções desse projeto.
 
 ---
 
 ## 📌 Security
 
-Security vulnerabilities must be reported privately using the instructions in `SECURITY.md`.
+Problemas de segurança **não devem ser reportados publicamente**.
 
----
+Segue as instruções em:
 
-Thank you for helping improve TriNodes!
