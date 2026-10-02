@@ -1,34 +1,99 @@
 # TriNodes GitHub Organization Configuration
 
-This repository contains global configuration files used across all repositories in the TriNodes organization.
+Este repositório contém toda a configuração global utilizada em todos os repositórios da organização **TriNodes**.  
+Aqui centralizamos padrões, governance, segurança, workflows reutilizáveis e documentação organizacional.
 
-## Contents
+---
 
-- **Issue Templates**  
-  Standardized templates for bug reports, feature requests, and other issue types.
+## 📦 Conteúdos
 
-- **Pull Request Template**  
-  A unified PR template to ensure consistent code reviews and documentation.
+### **Issue Templates**
+Modelos padronizados para:
+- Bug reports  
+- Feature requests  
+- Tasks  
+- Questions  
+- Security reports (privados)
 
-- **CODEOWNERS**  
-  Defines ownership and review responsibility across all organization repositories.
+### **Pull Request Template**
+Template unificado para garantir:
+- Revisões consistentes  
+- Documentação clara  
+- Uso obrigatório de Conventional Commits  
+- Labels de version bump (`bump:*`)
 
-- **Reusable Workflows**  
-  Shared GitHub Actions workflows for staging and production deployments.
+### **CODEOWNERS**
+Define:
+- Responsáveis por cada área  
+- Revisores obrigatórios  
+- Proteção de ficheiros sensíveis  
+- Governança organizacional
 
-- **Dependabot Configuration**  
-  Automated dependency updates for security and stability.
+### **Reusable Workflows**
+Workflows partilhados para:
+- Lint  
+- Tests  
+- Build  
+- Staging deploy  
+- Production deploy  
+- Release automático  
+- Sync de labels  
+- Stale bot  
+- Security Suite Enterprise  
+- Workflow Permissions Scan  
+- Branch Protection Scan  
+- Sensitive Files Scan
 
-## Purpose
+### **Dependabot Configuration**
+Atualizações automáticas de dependências:
+- Segurança  
+- Estabilidade  
+- Alertas automáticos
 
-Centralizing these files ensures:
+---
 
-- Consistent development workflow  
-- Standardized issue and PR communication  
-- Shared CI/CD pipelines  
-- Clear ownership and review rules  
-- Better maintainability across all TriNodes projects
+## 🎯 Objetivo
 
-## Notes
+Centralizar estes ficheiros garante:
 
-This repository is automatically applied to all repositories in the organization when the `.github` folder is present.
+- Workflow de desenvolvimento consistente  
+- Comunicação padronizada em issues e PRs  
+- CI/CD unificado em toda a organização  
+- Regras claras de revisão e ownership  
+- Segurança reforçada  
+- Governança automatizada  
+- Manutenção simplificada  
+- Redução de divergências entre repositórios
+
+---
+
+## 🛡 Segurança & Governance
+
+Este repositório inclui:
+
+- **Security Suite Enterprise**
+  - CodeQL  
+  - Secret scanning  
+  - OSV scanner  
+  - Gitleaks  
+  - Sensitive files scan  
+  - Workflow permissions scan  
+  - Branch protection scan  
+  - Criação automática de issues de segurança  
+
+- **Label Governance**
+  - Sync automático de labels  
+  - Detecção de labels órfãos  
+  - Issues automáticas quando há divergências  
+
+- **Workflow Governance**
+  - Permissões mínimas  
+  - Proteção contra `contents: write` desnecessário  
+  - Proteção contra `id-token: write` indevido  
+
+---
+
+## 🔧 Como funciona
+
+Este repositório é automaticamente aplicado a todos os repositórios da organização quando existe uma pasta:
+
