@@ -3,3 +3,41 @@
 
 # Owner for GitHub configuration files
 .github/ @trinodes
+
+# Workflows (DevOps)
+.github/workflows/ @trinodes
+
+# Issue templates (PM + Eng Leads)
+.github/ISSUE_TEMPLATE/ @trinodes
+
+# Pull request template (Eng Leads)
+.github/pull_request_template.md @trinodes
+
+# Source code (Engineering)
+src/ @trinodes
+
+# Tests (Engineering)
+tests/ @trinodes
+
+# Documentation (PM + Engineering)
+docs/ @trinodes
+
+# Scripts and automation
+scripts/ @trinodes
+
+# Security-related files
+security/ @trinodes
+*.pem @trinodes
+*.key @trinodes
+*.p12 @trinodes
+*.crt @trinodes
+*.cert @trinodes
+
+# Package management
+package.json @trinodes
+package-lock.json @trinodes
+
+# Infrastructure
+infra/ @trinodes
+docker/ @trinodes
+Dockerfile @trinodes
