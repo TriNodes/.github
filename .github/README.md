@@ -1,8 +1,8 @@
 TriNodes GitHub Organization Configuration
 This repository contains all global configuration used across every repository in the TriNodes organization.
-Here we centralize standards, governance, security, reusable workflows, and organizational documentation.
+It centralizes standards, governance, security, reusable workflows, and organizational documentation.
 
-📦 Contents
+Contents
 Issue Templates
 Standardized templates for:
 
@@ -30,7 +30,7 @@ Version bump labels (bump:*)
 CODEOWNERS
 Defines:
 
-Responsible owners for each area
+Area ownership
 
 Mandatory reviewers
 
@@ -74,7 +74,7 @@ Stability
 
 Automatic alerts
 
-🎯 Purpose
+Purpose
 Centralizing these files ensures:
 
 A consistent development workflow
@@ -93,10 +93,10 @@ Simplified maintenance
 
 Reduced divergence between repositories
 
-🛡 Security & Governance
-This repository includes:
-
+Security & Governance
 Enterprise Security Suite
+Includes:
+
 CodeQL
 
 Secret scanning
@@ -127,5 +127,5 @@ Protection against unnecessary contents: write
 
 Protection against improper id-token: write
 
-🔧 How It Works
+How It Works
 This repository is automatically applied to all organization repositories whenever a .github folder is present.
