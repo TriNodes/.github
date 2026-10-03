@@ -1,99 +1,131 @@
-# TriNodes GitHub Organization Configuration
+TriNodes GitHub Organization Configuration
+This repository contains all global configuration used across every repository in the TriNodes organization.
+Here we centralize standards, governance, security, reusable workflows, and organizational documentation.
 
-Este repositório contém toda a configuração global utilizada em todos os repositórios da organização **TriNodes**.  
-Aqui centralizamos padrões, governance, segurança, workflows reutilizáveis e documentação organizacional.
+📦 Contents
+Issue Templates
+Standardized templates for:
 
----
+Bug reports
 
-## 📦 Conteúdos
+Feature requests
 
-### **Issue Templates**
-Modelos padronizados para:
-- Bug reports  
-- Feature requests  
-- Tasks  
-- Questions  
-- Security reports (privados)
+Tasks
 
-### **Pull Request Template**
-Template unificado para garantir:
-- Revisões consistentes  
-- Documentação clara  
-- Uso obrigatório de Conventional Commits  
-- Labels de version bump (`bump:*`)
+Questions
 
-### **CODEOWNERS**
-Define:
-- Responsáveis por cada área  
-- Revisores obrigatórios  
-- Proteção de ficheiros sensíveis  
-- Governança organizacional
+Private security reports
 
-### **Reusable Workflows**
-Workflows partilhados para:
-- Lint  
-- Tests  
-- Build  
-- Staging deploy  
-- Production deploy  
-- Release automático  
-- Sync de labels  
-- Stale bot  
-- Security Suite Enterprise  
-- Workflow Permissions Scan  
-- Branch Protection Scan  
-- Sensitive Files Scan
+Pull Request Template
+Unified template ensuring:
 
-### **Dependabot Configuration**
-Atualizações automáticas de dependências:
-- Segurança  
-- Estabilidade  
-- Alertas automáticos
+Consistent reviews
 
----
+Clear documentation
 
-## 🎯 Objetivo
+Mandatory use of Conventional Commits
 
-Centralizar estes ficheiros garante:
+Version bump labels (bump:*)
 
-- Workflow de desenvolvimento consistente  
-- Comunicação padronizada em issues e PRs  
-- CI/CD unificado em toda a organização  
-- Regras claras de revisão e ownership  
-- Segurança reforçada  
-- Governança automatizada  
-- Manutenção simplificada  
-- Redução de divergências entre repositórios
+CODEOWNERS
+Defines:
 
----
+Responsible owners for each area
 
-## 🛡 Segurança & Governance
+Mandatory reviewers
 
-Este repositório inclui:
+Protection of sensitive files
 
-- **Security Suite Enterprise**
-  - CodeQL  
-  - Secret scanning  
-  - OSV scanner  
-  - Gitleaks  
-  - Sensitive files scan  
-  - Workflow permissions scan  
-  - Branch protection scan  
-  - Criação automática de issues de segurança  
+Organizational governance rules
 
-- **Label Governance**
-  - Sync automático de labels  
-  - Detecção de labels órfãos  
-  - Issues automáticas quando há divergências  
+Reusable Workflows
+Shared workflows for:
 
-- **Workflow Governance**
-  - Permissões mínimas  
-  - Proteção contra `contents: write` desnecessário  
-  - Proteção contra `id-token: write` indevido  
+Lint
 
----
+Tests
 
-## 🔧 Como funciona
+Build
 
-Este repositório é automaticamente aplicado a todos os repositórios da organização quando existe uma pasta:
+Staging deploy
 
+Production deploy
+
+Automatic releases
+
+Label synchronization
+
+Stale bot
+
+Enterprise Security Suite
+
+Workflow Permissions Scan
+
+Branch Protection Scan
+
+Sensitive Files Scan
+
+Dependabot Configuration
+Automated dependency updates for:
+
+Security
+
+Stability
+
+Automatic alerts
+
+🎯 Purpose
+Centralizing these files ensures:
+
+A consistent development workflow
+
+Standardized communication in issues and PRs
+
+Unified CI/CD across the entire organization
+
+Clear review and ownership rules
+
+Strengthened security
+
+Automated governance
+
+Simplified maintenance
+
+Reduced divergence between repositories
+
+🛡 Security & Governance
+This repository includes:
+
+Enterprise Security Suite
+CodeQL
+
+Secret scanning
+
+OSV scanner
+
+Gitleaks
+
+Sensitive files scan
+
+Workflow permissions scan
+
+Branch protection scan
+
+Automatic creation of security issues
+
+Label Governance
+Automatic label synchronization
+
+Detection of orphaned labels
+
+Automatic issues when inconsistencies are found
+
+Workflow Governance
+Enforced minimum permissions
+
+Protection against unnecessary contents: write
+
+Protection against improper id-token: write
+
+🔧 How It Works
+This repository is automatically applied to all organization repositories whenever a .github folder is present.
