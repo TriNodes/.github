@@ -1,131 +1,123 @@
-TriNodes GitHub Organization Configuration
-This repository contains all global configuration used across every repository in the TriNodes organization.
-It centralizes standards, governance, security, reusable workflows, and organizational documentation.
+# 🎛️ TriNodes GitHub Organization Configuration
 
-Contents
-Issue Templates
+This repository contains all global configuration used across the **TriNodes** GitHub organization.  
+It centralizes standards, governance, security, reusable workflows, and documentation applied to every repository.
+
+---
+
+## 📂 Contents
+
+### 📝 Issue Templates
+
 Standardized templates for:
 
-Bug reports
+- Bug reports  
+- Feature requests  
+- Tasks  
+- Questions  
+- Private security reports  
 
-Feature requests
+---
 
-Tasks
+### 🔀 Pull Request Template
 
-Questions
+Ensures:
 
-Private security reports
+- Consistent review process  
+- Clear documentation  
+- Mandatory Conventional Commits  
+- Version bump labels (`bump:*`)  
 
-Pull Request Template
-Unified template ensuring:
+---
 
-Consistent reviews
+### 👥 CODEOWNERS
 
-Clear documentation
-
-Mandatory use of Conventional Commits
-
-Version bump labels (bump:*)
-
-CODEOWNERS
 Defines:
 
-Area ownership
+- Area ownership  
+- Mandatory reviewers  
+- Sensitive file protection  
+- Governance rules  
 
-Mandatory reviewers
+---
 
-Protection of sensitive files
+### ⚙️ Reusable Workflows
 
-Organizational governance rules
+Shared GitHub Actions for:
 
-Reusable Workflows
-Shared workflows for:
+- Lint  
+- Tests  
+- Build  
+- Staging deploy  
+- Production deploy  
+- Automatic releases  
+- Label sync  
+- Stale bot  
+- Enterprise Security Suite  
+- Workflow Permissions Scan  
+- Branch Protection Scan  
+- Sensitive Files Scan  
 
-Lint
+---
 
-Tests
+### 🔒 Dependabot Configuration
 
-Build
-
-Staging deploy
-
-Production deploy
-
-Automatic releases
-
-Label synchronization
-
-Stale bot
-
-Enterprise Security Suite
-
-Workflow Permissions Scan
-
-Branch Protection Scan
-
-Sensitive Files Scan
-
-Dependabot Configuration
 Automated dependency updates for:
 
-Security
+- Security  
+- Stability  
+- Alerts  
 
-Stability
+---
 
-Automatic alerts
+## 🎯 Purpose
 
-Purpose
 Centralizing these files ensures:
 
-A consistent development workflow
+- Consistent development workflow  
+- Standardized communication in issues and PRs  
+- Unified CI/CD pipelines  
+- Clear ownership and review rules  
+- Strong security posture  
+- Automated governance  
+- Simplified maintenance  
+- Reduced divergence between repositories  
 
-Standardized communication in issues and PRs
+---
 
-Unified CI/CD across the entire organization
+## 🛡️ Security & Governance
 
-Clear review and ownership rules
+### 🧩 Enterprise Security Suite
 
-Strengthened security
-
-Automated governance
-
-Simplified maintenance
-
-Reduced divergence between repositories
-
-Security & Governance
-Enterprise Security Suite
 Includes:
 
-CodeQL
+- CodeQL  
+- Secret scanning  
+- OSV scanner  
+- Gitleaks  
+- Sensitive files scan  
+- Workflow permissions scan  
+- Branch protection scan  
+- Automatic security issue creation  
 
-Secret scanning
+---
 
-OSV scanner
+### 🏷️ Label Governance
 
-Gitleaks
+- Automatic label synchronization  
+- Detection of orphaned labels  
+- Automatic issues for inconsistencies  
 
-Sensitive files scan
+---
 
-Workflow permissions scan
+### 🔐 Workflow Governance
 
-Branch protection scan
+- Minimum permissions enforced  
+- Protection against unnecessary `contents: write`  
+- Protection against improper `id-token: write`  
 
-Automatic creation of security issues
+---
 
-Label Governance
-Automatic label synchronization
+## 🔧 How It Works
 
-Detection of orphaned labels
-
-Automatic issues when inconsistencies are found
-
-Workflow Governance
-Enforced minimum permissions
-
-Protection against unnecessary contents: write
-
-Protection against improper id-token: write
-
-How It Works
-This repository is automatically applied to all organization repositories whenever a .github folder is present.
+Any repository containing a `.github` folder automatically inherits the shared templates, workflows, governance rules, and security configurations defined here.
