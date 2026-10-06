@@ -1,0 +1,80 @@
+name: ✨ Feature request
+description: Suggest a new feature or improvement
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping us improve. The more context you give, the easier it is to prioritise.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Feature description
+      description: A clear and concise description of the feature you would like to see.
+    validations:
+      required: true
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Problem / motivation
+      description: What problem does this solve, and who benefits?
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: How do you think the feature should work?
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Other solutions or workarounds you have tried or considered.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Impact / priority
+      options:
+        - Low — nice to have
+        - Medium — improves usability
+        - High — significantly improves workflow
+        - Critical — blocks important usage
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected area
+      multiple: true
+      options:
+        - Frontend
+        - Backend
+        - API
+        - Database
+        - CI/CD
+        - Other
+
+  - type: textarea
+    id: examples
+    attributes:
+      label: Screenshots / examples
+      description: Mock-ups, screenshots or references that illustrate the idea.
+
+  - type: textarea
+    id: related
+    attributes:
+      label: Related issues / PRs
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing issues and this has not been requested yet.
+          required: true
