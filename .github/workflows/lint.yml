@@ -1,14 +1,23 @@
 name: Lint
 
-permissions:
-  contents: read
+# Run `npm run lint` on a Node.js project.
 
 on:
   workflow_call:
+    inputs:
+      node_version:
+        description: Node.js version used to lint
+        type: string
+        default: "22"
+
+permissions:
+  contents: read
 
 jobs:
   lint:
+    name: Lint
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: Checkout repository
@@ -19,7 +28,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: ${{ inputs.node_version }}
           cache: npm
 
       - name: Install dependencies

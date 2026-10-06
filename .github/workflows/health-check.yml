@@ -1,93 +1,150 @@
 name: Organization Health Check
 
+# Weekly audit of the repositories in the organization.
+#
+# This repository is PUBLIC, and so are its issues and job summaries. The report
+# therefore never includes private repositories unless it can be published to a
+# private repository:
+#
+#   Default mode ............ audits PUBLIC repositories only. The report goes to the
+#                             job summary and to one open `health-check` issue here.
+#
+#   Private mode (opt-in) ... audits ALL repositories. Requires BOTH
+#                               - secret   ORG_AUDIT_TOKEN: fine-grained token (or GitHub App
+#                                 token) with read access to Contents, Metadata and
+#                                 Administration, plus write access to Issues on the report repo
+#                               - variable HEALTH_REPORT_REPO: a PRIVATE repository (owner/name)
+#                                 where the report issue is kept
+#                             Nothing is written to the (public) job summary in this mode.
+
 on:
   schedule:
-    - cron: "0 9 * * MON" # Every Monday at 09:00
+    - cron: "0 9 * * 1" # Every Monday at 09:00 UTC
   workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
 
 jobs:
   health-check:
+    name: Audit repositories
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     env:
-      GH_TOKEN: ${{ github.token }}
-      ORG: TriNodes
-      REPORT_REPO: TriNodes/.health-reports
+      ORG: ${{ github.repository_owner }}
+      AUDIT_TOKEN: ${{ secrets.ORG_AUDIT_TOKEN }}
+      REPORT_REPO: ${{ vars.HEALTH_REPORT_REPO }}
 
     steps:
-      - name: Prepare report file
-        run: echo "# Weekly Organization Health Report" > report.md
-
-      - name: Fetch organization repositories
+      - name: Build report
+        env:
+          DEFAULT_TOKEN: ${{ github.token }}
         run: |
-          echo "Fetching repositories..."
-          gh repo list $ORG --limit 200 --json name --jq '.[].name' > repos.txt
+          set -uo pipefail
 
-      - name: Check repositories
+          private_mode=false
+          if [ -n "$AUDIT_TOKEN" ] && [ -n "$REPORT_REPO" ]; then
+            private_mode=true
+          fi
+          echo "PRIVATE_MODE=$private_mode" >> "$GITHUB_ENV"
+
+          if [ -n "$AUDIT_TOKEN" ]; then
+            export GH_TOKEN="$AUDIT_TOKEN"
+          else
+            export GH_TOKEN="$DEFAULT_TOKEN"
+          fi
+
+          visibility_flag=()
+          if [ "$private_mode" = "false" ]; then
+            visibility_flag=(--visibility public)
+          fi
+
+          {
+            echo "# Weekly Organization Health Report"
+            echo
+            echo "_Generated on $(date -u +%F) for \`$ORG\`._"
+            echo
+            if [ "$private_mode" = "false" ]; then
+              echo "> ℹ️ Public repositories only. See the header of \`health-check.yml\` to audit private repositories as well."
+              echo
+            fi
+            if [ -z "$AUDIT_TOKEN" ]; then
+              echo "> ⚠️ \`ORG_AUDIT_TOKEN\` is not configured, so branch protection could not be read."
+              echo
+            fi
+            echo "| Repository | Visibility | CODEOWNERS | Workflows | Dependabot | Branch protection |"
+            echo "|---|---|:-:|:-:|:-:|:-:|"
+          } > report.md
+
+          mark() { if [ "$1" = "yes" ]; then echo "✅"; elif [ "$1" = "n/a" ]; then echo "➖"; else echo "❌"; fi; }
+
+          gh repo list "$ORG" --limit 200 --no-archived --source "${visibility_flag[@]}" \
+            --json name,visibility,defaultBranchRef \
+            --jq '.[] | select(.name != ".github") | [.name, .visibility, (.defaultBranchRef.name // "")] | @tsv' > repos.tsv
+
+          problems=0
+          while IFS=$'\t' read -r name visibility branch; do
+            tree=$(gh api "repos/$ORG/$name/git/trees/HEAD?recursive=1" --jq '.tree[].path' 2>/dev/null || true)
+
+            has() { grep -Eq "$1" <<< "$tree" && echo yes || echo no; }
+            codeowners=$(has '^(CODEOWNERS|\.github/CODEOWNERS|docs/CODEOWNERS)$')
+            workflows=$(has '^\.github/workflows/.+\.ya?ml$')
+            dependabot=$(has '^\.github/dependabot\.ya?ml$')
+
+            protection=no
+            if [ -z "$AUDIT_TOKEN" ]; then
+              protection=n/a
+            elif [ -n "$branch" ]; then
+              if gh api "repos/$ORG/$name/branches/$branch/protection" > /dev/null 2>&1; then
+                protection=yes
+              elif [ "$(gh api "repos/$ORG/$name/rules/branches/$branch" --jq 'length' 2>/dev/null || echo 0)" -gt 0 ]; then
+                protection=yes
+              fi
+            fi
+
+            for v in "$codeowners" "$workflows" "$dependabot" "$protection"; do
+              [ "$v" = "no" ] && problems=$((problems + 1))
+            done
+
+            echo "| \`$name\` | $visibility | $(mark "$codeowners") | $(mark "$workflows") | $(mark "$dependabot") | $(mark "$protection") |" >> report.md
+          done < repos.tsv
+
+          {
+            echo
+            echo "**Open gaps:** $problems"
+            echo
+            echo "_Issue templates, the pull request template, the Code of Conduct, Security Policy and Support guide are inherited from \`$ORG/.github\`, so they are not checked per repository._"
+          } >> report.md
+
+          # The job summary of a public repository is public: only write it in default mode.
+          if [ "$private_mode" = "false" ]; then
+            cat report.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Report built (private mode): see the issue in the private report repository." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Publish report issue
+        env:
+          DEFAULT_TOKEN: ${{ github.token }}
+          THIS_REPO: ${{ github.repository }}
         run: |
-          echo "Starting checks..."
-          while read repo; do
-            echo "## $repo" >> report.md
-            echo "- Checking $repo..."
+          if [ "$PRIVATE_MODE" = "true" ]; then
+            export GH_TOKEN="$AUDIT_TOKEN"
+            export GH_REPO="$REPORT_REPO"
+          else
+            export GH_TOKEN="$DEFAULT_TOKEN"
+            export GH_REPO="$THIS_REPO"
+          fi
 
-            # Check .github folder
-            if gh api repos/$ORG/$repo/contents/.github --silent >/dev/null 2>&1; then
-              echo "- ✔ .github folder found" >> report.md
-            else
-              echo "- ❌ Missing .github folder" >> report.md
-            fi
+          title="Weekly Organization Health Report"
+          existing=$(gh issue list --state open --label health-check --json number --jq '.[0].number // empty')
 
-            # Check workflows
-            if gh api repos/$ORG/$repo/contents/.github/workflows --silent >/dev/null 2>&1; then
-              echo "- ✔ Workflows found" >> report.md
-            else
-              echo "- ❌ Missing workflows" >> report.md
-            fi
-
-            # Check CODEOWNERS
-            if gh api repos/$ORG/$repo/contents/.github/CODEOWNERS --silent >/dev/null 2>&1; then
-              echo "- ✔ CODEOWNERS found" >> report.md
-            else
-              echo "- ❌ Missing CODEOWNERS" >> report.md
-            fi
-
-            # Check issue templates
-            if gh api repos/$ORG/$repo/contents/.github/ISSUE_TEMPLATE --silent >/dev/null 2>&1; then
-              echo "- ✔ Issue templates found" >> report.md
-            else
-              echo "- ❌ Missing issue templates" >> report.md
-            fi
-
-            # Check PR templates
-            if gh api repos/$ORG/$repo/contents/.github/pull_request_template.md --silent >/dev/null 2>&1; then
-              echo "- ✔ Pull request template found" >> report.md
-            else
-              echo "- ❌ Missing pull request template" >> report.md
-            fi
-
-            # Check Dependabot
-            if gh api repos/$ORG/$repo/contents/.github/dependabot.yml --silent >/dev/null 2>&1; then
-              echo "- ✔ Dependabot found" >> report.md
-            else
-              echo "- ❌ Missing Dependabot" >> report.md
-            fi
-
-            # Check branch protection
-            if gh api repos/$ORG/$repo/branches/main/protection --silent >/dev/null 2>&1; then
-              echo "- ✔ Branch protection enabled" >> report.md
-            else
-              echo "- ❌ Missing branch protection" >> report.md
-            fi
-
-            echo "" >> report.md
-          done < repos.txt
-
-      - name: Create or update health report issue
-        run: |
-          echo "Publishing report..."
-          gh issue create \
-            --repo $REPORT_REPO \
-            --title "Weekly Organization Health Report" \
-            --body-file report.md \
-            --label "health-check" \
-            || echo "Issue already exists or could not be created"
+          if [ -n "$existing" ]; then
+            gh issue edit "$existing" --body-file report.md
+          else
+            gh issue create --title "$title" --body-file report.md --label health-check \
+              || gh issue create --title "$title" --body-file report.md \
+              || echo "::warning::Could not create the report issue (are issues enabled on the target repository?)."
+          fi

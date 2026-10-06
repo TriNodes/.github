@@ -1,15 +1,39 @@
 name: Reusable Sync Labels
 
+# Creates/updates every label of .github/labels.json (from TriNodes/.github) in
+# the calling repository, and reports labels that are not in the catalogue.
+#
+# Usage:
+#   permissions:
+#     contents: read
+#     issues: write
+#   jobs:
+#     labels:
+#       uses: TriNodes/.github/.github/workflows/sync-labels.yml@main
+
 on:
   workflow_call:
+    inputs:
+      report_orphans:
+        description: Open (or update) one issue listing labels that are not in labels.json
+        type: boolean
+        default: true
 
 permissions:
-  issues: write
   contents: read
+  issues: write
 
 jobs:
   sync-labels:
+    name: Sync labels
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    env:
+      GH_TOKEN: ${{ github.token }}
+      # No checkout of the calling repository happens here, so `gh` needs to be told which repo to use.
+      GH_REPO: ${{ github.repository }}
+      LABELS_FILE: org-defaults/.github/labels.json
 
     steps:
       - name: Checkout org defaults
@@ -18,78 +42,65 @@ jobs:
           repository: TriNodes/.github
           path: org-defaults
 
-      - name: Validate labels.json exists
+      - name: Validate labels.json
         run: |
-          if [ ! -f org-defaults/labels.json ]; then
-            echo "::error::labels.json não encontrado no repositório TriNodes/.github"
+          if [ ! -f "$LABELS_FILE" ]; then
+            echo "::error::$LABELS_FILE not found in TriNodes/.github"
+            exit 1
+          fi
+          jq -e 'type == "array" and all(.[]; has("name") and has("color"))' "$LABELS_FILE" > /dev/null \
+            || { echo "::error::labels.json must be an array of objects with at least name and color"; exit 1; }
+
+      - name: Apply labels (create or update)
+        run: |
+          failed=0
+          while IFS= read -r row; do
+            name=$(jq -r '.name' <<< "$row")
+            color=$(jq -r '.color' <<< "$row")
+            desc=$(jq -r '.description // "Synchronized from TriNodes/.github"' <<< "$row")
+
+            if ! gh label create "$name" --color "$color" --description "$desc" --force; then
+              echo "::warning::Could not sync label: $name"
+              failed=$((failed + 1))
+            fi
+          done < <(jq -c '.[]' "$LABELS_FILE")
+
+          if [ "$failed" -gt 0 ]; then
+            echo "::error::$failed label(s) could not be synchronized"
             exit 1
           fi
 
-      - name: Load labels from org defaults
-        id: load
-        run: |
-          jq -c '.[]' org-defaults/labels.json > labels.txt
-
-      - name: Apply labels (sync + update)
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -e
-          while read -r row; do
-            name=$(echo "$row" | jq -r '.name')
-            color=$(echo "$row" | jq -r '.color')
-            desc=$(echo "$row" | jq -r '.description')
-
-            # Validação mínima
-            if [ -z "$name" ]; then
-              echo "::warning::Label sem nome ignorado"
-              continue
-            fi
-
-            if [ -z "$color" ]; then
-              echo "::warning::Label $name sem cor — usando cor padrão"
-              color="cccccc"
-            fi
-
-            if [ -z "$desc" ]; then
-              echo "::warning::Label $name sem descrição — adicionando descrição padrão"
-              desc="Label sincronizado automaticamente"
-            fi
-
-            # Cria ou atualiza
-            gh label create "$name" \
-              --color "$color" \
-              --description "$desc" \
-              --force || true
-          done < labels.txt
-
-      - name: Detect orphan labels (labels que existem no repo mas não no labels.json)
+      - name: Detect orphan labels
         id: orphan
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
-          gh label list --json name --jq '.[].name' > existing.txt
-          jq -r '.[].name' org-defaults/labels.json > expected.txt
-
-          comm -23 <(sort existing.txt) <(sort expected.txt) > orphan.txt
+          # GitHub label names are case-insensitive, so compare in lower case.
+          gh label list --limit 500 --json name --jq '.[].name' | tr '[:upper:]' '[:lower:]' | sort -u > existing.txt
+          jq -r '.[].name' "$LABELS_FILE" | tr '[:upper:]' '[:lower:]' | sort -u > expected.txt
+          comm -23 existing.txt expected.txt > orphan.txt
 
           if [ -s orphan.txt ]; then
-            echo "found=true" >> $GITHUB_OUTPUT
+            echo "found=true" >> "$GITHUB_OUTPUT"
           else
-            echo "found=false" >> $GITHUB_OUTPUT
+            echo "found=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Create issue for orphan labels
-        if: steps.orphan.outputs.found == 'true'
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Report orphan labels
+        if: steps.orphan.outputs.found == 'true' && inputs.report_orphans
         run: |
-          body="## Labels órfãos encontrados\n\nOs seguintes labels existem no repositório mas não no labels.json:\n\n"
-          while read -r label; do
-            body+="- $label\n"
-          done < orphan.txt
+          title="Orphan labels found"
+          {
+            echo "## Orphan labels"
+            echo
+            echo "These labels exist in this repository but not in the organization catalogue (\`TriNodes/.github\` → \`.github/labels.json\`):"
+            echo
+            sed 's/^/- `/; s/$/`/' orphan.txt
+            echo
+            echo "Delete them, or propose adding them to the catalogue."
+          } > body.md
 
-          gh issue create \
-            --title "⚠ Labels órfãos encontrados" \
-            --body "$body" \
-            --label "governance"
+          existing=$(gh issue list --state open --search "\"$title\" in:title" --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            gh issue edit "$existing" --body-file body.md
+          else
+            gh issue create --title "$title" --body-file body.md --label governance
+          fi
