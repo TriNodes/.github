@@ -10,26 +10,26 @@
 # The last matching pattern wins.
 
 # Default owner for everything
-*                                   @TriNodes/it-development-team
+*                                   @Dfmd @joseluisccosta @xandemoss
 
 # Workflows and automation (reusable by every repository: changes affect all of them)
-/.github/workflows/                 @TriNodes/it-development-team
+/.github/workflows/                 @Dfmd @joseluisccosta @xandemoss
 
 # Governance, security and conduct documents
-/.github/GOVERNANCE.md              @TriNodes/it-development-team
-/.github/SECURITY.md                @TriNodes/it-development-team
-/.github/CODE_OF_CONDUCT.md         @TriNodes/it-development-team
+/.github/GOVERNANCE.md              @Dfmd @joseluisccosta @xandemoss
+/.github/SECURITY.md                @Dfmd @joseluisccosta @xandemoss
+/.github/CODE_OF_CONDUCT.md         @Dfmd @joseluisccosta @xandemoss
 
 # Label catalogue, ownership and dependency automation
-/.github/labels.json                @TriNodes/it-development-team
-/.github/labeler.yml                @TriNodes/it-development-team
-/.github/dependabot.yml             @TriNodes/it-development-team
-/.github/CODEOWNERS                 @TriNodes/it-development-team
+/.github/labels.json                @Dfmd @joseluisccosta @xandemoss
+/.github/labeler.yml                @Dfmd @joseluisccosta @xandemoss
+/.github/dependabot.yml             @Dfmd @joseluisccosta @xandemoss
+/.github/CODEOWNERS                 @Dfmd @joseluisccosta @xandemoss
 
 # Issue forms and pull request template
-/.github/ISSUE_TEMPLATE/            @TriNodes/it-development-team
-/.github/pull_request_template.md   @TriNodes/it-development-team
+/.github/ISSUE_TEMPLATE/            @Dfmd @joseluisccosta @xandemoss
+/.github/pull_request_template.md   @Dfmd @joseluisccosta @xandemoss
 
 # Public organization profile and brand assets
-/profile/                           @TriNodes/it-development-team
-/assets/                            @TriNodes/it-development-team
+/profile/                           @Dfmd @joseluisccosta @xandemoss
+/assets/                            @Dfmd @joseluisccosta @xandemoss
