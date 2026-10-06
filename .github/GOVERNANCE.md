@@ -1,72 +1,97 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/TriNodes/.github/main/assets/headers/governance.svg" alt="TriNodes Governance" width="100%">
+</p>
+
 # TriNodes Governance Model
 
-This document defines how decisions are made, how responsibilities are distributed, and how standards are enforced across the TriNodes organization.
+This document defines how decisions are made, how responsibilities are distributed and how standards are enforced across the TriNodes organization.
 
 ---
 
-## 👥 Roles & Responsibilities
+## 👥 Roles & responsibilities
+
+```mermaid
+flowchart TB
+  L["🏢 TriNodes leadership<br/>organizational decisions"]
+  M["🛠️ Maintainers<br/>approve PRs · manage releases · enforce standards"]
+  O["👥 CODEOWNERS<br/>mandatory reviewers for protected areas"]
+  C["🙋 Contributors<br/>submit PRs · follow standards · report issues"]
+  C --> O --> M --> L
+```
 
 ### Maintainers
-- Approve PRs  
-- Manage releases  
-- Enforce standards  
-- Oversee repository health  
-- Coordinate with security and CI/CD teams  
+- Approve pull requests
+- Manage releases
+- Enforce standards
+- Oversee repository health
+- Coordinate with security and CI/CD owners
 
 ### CODEOWNERS
-- Mandatory reviewers for protected areas  
-- Ensure architectural and coding consistency  
-- Validate compliance with standards  
+- Mandatory reviewers for protected areas
+- Ensure architectural and coding consistency
+- Validate compliance with standards
 
 ### Contributors
-- Submit PRs  
-- Follow standards  
-- Participate in discussions  
-- Report issues responsibly  
+- Submit pull requests
+- Follow the standards
+- Participate in discussions
+- Report issues responsibly
 
 ---
 
-## 🧭 Decision-Making Process
+## 🧭 Decision-making process
 
-### Technical Decisions
-Made collaboratively by maintainers and CODEOWNERS.
+```mermaid
+flowchart LR
+  P["💡 Proposal<br/>(issue or PR)"] --> D["💬 Discussion"]
+  D --> Q{"Consensus among<br/>maintainers & CODEOWNERS?"}
+  Q -- "yes" --> A["✅ Approved & merged"]
+  Q -- "no" --> E["⬆️ Escalate to leadership"]
+  E --> A
+```
 
-### Organizational Decisions
-Made by TriNodes leadership.
-
-### Dispute Resolution
-Handled through consensus among maintainers.  
-Escalated to leadership if necessary.
-
----
-
-## 🚀 Release Governance
-
-- All releases follow SemVer  
-- PRs must include bump labels  
-- Automated release workflows handle versioning  
-- Breaking changes require maintainer approval  
-- Release notes must be generated automatically  
+- **Technical decisions** are made collaboratively by maintainers and CODEOWNERS.
+- **Organizational decisions** are made by TriNodes leadership.
+- **Dispute resolution** is handled through consensus among maintainers and escalated to leadership if necessary.
 
 ---
 
-## ⚙ Workflow Governance
+## 🚀 Release governance
 
-- All repositories must use reusable workflows  
-- Dangerous permissions require justification  
-- Security Suite Enterprise must remain enabled  
-- CI/CD must pass before merging  
-- Branch protection must be enforced  
+- All releases follow [SemVer](https://semver.org)
+- Pull requests must include a `bump:*` label (see [Standards](https://github.com/TriNodes/.github/blob/main/.github/STANDARDS.md#-4-semantic-versioning))
+- Automated release workflows handle versioning, tagging and GitHub Releases
+- Breaking changes require maintainer approval
+- Release notes are generated automatically from the merged pull requests
 
 ---
 
-## 📘 Standards Enforcement
+## ⚙️ Workflow governance
+
+- Repositories use the organization's reusable workflows instead of copying them
+- Dangerous permissions (`contents: write`, `id-token: write`, `write-all`) require a written justification in the workflow file or the pull request that adds them
+- The security suite must remain enabled
+- CI/CD must pass before merging
+- Branch protection (or a ruleset) must be enforced on the default branch
+
+---
+
+## 📘 Standards enforcement
 
 All repositories must comply with:
 
-- STANDARDS.md  
-- CONTRIBUTING.md  
-- SECURITY.md  
-- CODEOWNERS  
-- CI/CD requirements  
-- Governance rules  
+- [Standards](https://github.com/TriNodes/.github/blob/main/.github/STANDARDS.md)
+- [Contributing](https://github.com/TriNodes/.github/blob/main/.github/CONTRIBUTING.md)
+- [Security Policy](https://github.com/TriNodes/.github/blob/main/.github/SECURITY.md)
+- [Architecture Guidelines](https://github.com/TriNodes/.github/blob/main/.github/ARCHITECTURE_GUIDELINES.md)
+- `CODEOWNERS` using real GitHub teams or users
+- CI/CD requirements
+- These governance rules
+
+Compliance is audited weekly by the organization health check (`health-check.yml`).
+
+---
+
+## 📝 Amending this document
+
+Changes to governance are proposed as a pull request, labelled `governance`, and require approval from TriNodes leadership in addition to CODEOWNERS.
