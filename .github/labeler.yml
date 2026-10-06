@@ -1,0 +1,37 @@
+# Used by .github/workflows/auto-label.yml (actions/labeler v5).
+# Paths are relative to the repository root.
+
+documentation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*.md"
+          - "docs/**"
+          - "assets/**"
+
+ci:
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".github/workflows/**"
+
+security:
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".github/SECURITY.md"
+          - ".github/workflows/security.yml"
+          - ".github/workflows/self-security.yml"
+
+governance:
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".github/CODEOWNERS"
+          - ".github/CODE_OF_CONDUCT.md"
+          - ".github/GOVERNANCE.md"
+          - ".github/STANDARDS.md"
+          - ".github/labels.json"
+
+dependencies:
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".github/dependabot.yml"
+          - "package.json"
+          - "package-lock.json"

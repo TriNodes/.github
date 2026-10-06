@@ -1,0 +1,19 @@
+# Keeps the GitHub Actions used by this repository's workflows up to date.
+# Dependabot has no organization-wide default: each repository needs its own file.
+version: 2
+
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    commit-message:
+      prefix: "ci(deps)"
+    labels:
+      - dependencies
+      - ci
+    groups:
+      github-actions:
+        patterns:
+          - "*"
