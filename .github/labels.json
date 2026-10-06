@@ -36,5 +36,19 @@
   { "name": "blocked", "color": "b60205", "description": "Work blocked by dependencies or issues" },
   { "name": "needs-review", "color": "fbca04", "description": "Awaiting code review" },
   { "name": "needs-testing", "color": "0366d6", "description": "Awaiting testing" },
-  { "name": "ready", "color": "0e8a16", "description": "Ready for merge or deployment" }
+  { "name": "ready", "color": "0e8a16", "description": "Ready for merge or deployment" },
+
+  { "name": "question", "color": "d876e3", "description": "Further information is requested" },
+  { "name": "task", "color": "c5def5", "description": "Internal task or maintenance work" },
+  { "name": "needs-triage", "color": "ededed", "description": "Awaiting initial triage" },
+  { "name": "stale", "color": "ffffff", "description": "Inactive; will be closed automatically if there is no activity" },
+  { "name": "automerge", "color": "0e8a16", "description": "Merge automatically once all checks pass" },
+  { "name": "pinned", "color": "bfdadc", "description": "Exempt from the stale bot" },
+  { "name": "health-check", "color": "c2e0c6", "description": "Organization health report" },
+
+  { "name": "good first issue", "color": "7057ff", "description": "Good for newcomers" },
+  { "name": "help wanted", "color": "008672", "description": "Extra attention is needed" },
+  { "name": "duplicate", "color": "cfd3d7", "description": "This issue or pull request already exists" },
+  { "name": "invalid", "color": "e4e669", "description": "This does not seem right" },
+  { "name": "wontfix", "color": "ffffff", "description": "This will not be worked on" }
 ]

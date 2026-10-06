@@ -1,0 +1,31 @@
+name: Security (this repository)
+
+# Runs the organization's reusable security suite against this repository.
+# This repository only contains Markdown, JSON and workflow files, so CodeQL
+# analyses the workflows themselves and OSV-Scanner (no package manifests) is off.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "0 3 * * 1" # Mondays at 03:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  security:
+    # Pull requests from forks get a read-only token and cannot upload scan results.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+      issues: write
+    uses: ./.github/workflows/security.yml
+    with:
+      languages: '["actions"]'
+      enable_osv: false

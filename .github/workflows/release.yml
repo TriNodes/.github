@@ -1,66 +1,96 @@
 name: Reusable Release
 
-# Faz o bump da versão e empurra a tag, a partir do repositório que o chama.
+# Bumps the version, pushes the tag and publishes a GitHub Release from the
+# repository that calls it.
 #
-# Duas coisas que este workflow *não* pode resolver sozinho:
+# Things this workflow cannot solve on its own:
 #
-# 1. `contents: write` tem de vir de quem chama. Um workflow chamado nunca
-#    recebe mais permissões do que o GITHUB_TOKEN do chamador já tem, e o
-#    predefinido da organização é só leitura. Quem chama precisa de:
+# 1. `contents: write` has to come from the caller. A called workflow never
+#    gets more permissions than the caller's GITHUB_TOKEN already has, and the
+#    organization default is read-only. The caller needs:
 #
 #      jobs:
 #        release:
 #          permissions:
 #            contents: write
 #          uses: TriNodes/.github/.github/workflows/release.yml@main
+#          with:
+#            bump: minor   # patch (default) | minor | major
 #
-# 2. O repositório que chama precisa de `package.json` e `package-lock.json`,
-#    senão o `npm ci` não tem o que instalar.
+# 2. The calling repository needs `package.json` and `package-lock.json`,
+#    otherwise `npm ci` has nothing to install.
+#
+# 3. If `main` is protected and requires pull requests, the default
+#    GITHUB_TOKEN cannot push the version commit. Allow the bot to bypass the
+#    rule, or use a GitHub App token.
 
 on:
   workflow_call:
+    inputs:
+      bump:
+        description: Version increment to apply (patch, minor or major)
+        type: string
+        default: patch
+      node_version:
+        description: Node.js version
+        type: string
+        default: "22"
+
+permissions:
+  contents: write
 
 jobs:
   release:
+    name: Release
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
+    timeout-minutes: 15
 
     steps:
+      - name: Validate inputs
+        env:
+          BUMP: ${{ inputs.bump }}
+        run: |
+          case "$BUMP" in
+            patch|minor|major) ;;
+            *) echo "::error::bump must be patch, minor or major (got '$BUMP')"; exit 1 ;;
+          esac
+
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: ${{ inputs.node_version }}
           cache: npm
 
       - name: Install dependencies
         run: npm ci
 
-      # `npm version` faz um commit, e um commit precisa de autor. Os runners
-      # do GitHub não trazem identidade git configurada, por isso sem isto o
-      # passo abaixo morria com "Author identity unknown" — depois de o
-      # problema das permissões estar resolvido, que era o que o escondia.
+      # `npm version` makes a commit and a commit needs an author. GitHub runners
+      # have no git identity configured, so without this the bump step fails with
+      # "Author identity unknown".
       - name: Configure git identity
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      # `git push --follow-tags` manda o commit e a tag num único push. Se o
-      # branch tiver avançado entretanto (ex: um PR fez merge enquanto este
-      # job corria), o push do commit é rejeitado mas o da tag pode passar
-      # na mesma — fica uma tag órfã, e todas as corridas seguintes tentam
-      # recriar a mesma versão e chocam com essa tag ("tag already exists").
-      # Por isso aqui separamos os dois: o bump de versão só mexe no working
-      # tree (--no-git-tag-version), fazemos o commit à mão, tentamos o push
-      # do branch com rebase-and-retry, e só criamos e empurramos a tag
-      # depois de o commit estar confirmado no branch remoto.
+      # `git push --follow-tags` sends the commit and the tag in a single push. If
+      # the branch moved in the meantime (for example a PR merged while this job
+      # was running) the commit push is rejected but the tag push can still go
+      # through, leaving an orphan tag that makes every following run try to
+      # recreate the same version and collide with it ("tag already exists").
+      # So the two are separated: the bump only touches the working tree
+      # (--no-git-tag-version), the commit is made by hand, the branch push is
+      # retried with rebase, and the tag is only created and pushed once the
+      # commit is confirmed on the remote branch.
       - name: Version bump
+        id: bump
+        env:
+          BUMP: ${{ inputs.bump }}
         run: |
           set -e
-          npm version patch --no-git-tag-version
+          npm version "$BUMP" --no-git-tag-version
           new_version=$(node -p "require('./package.json').version")
           git commit -am "chore: bump version to ${new_version} [skip ci]"
 
@@ -68,7 +98,7 @@ jobs:
           max_attempts=3
           until git push; do
             if [ "$attempt" -ge "$max_attempts" ]; then
-              echo "::error::push do commit de bump falhou depois de ${max_attempts} tentativas"
+              echo "::error::pushing the bump commit failed after ${max_attempts} attempts"
               exit 1
             fi
             attempt=$((attempt + 1))
@@ -78,3 +108,11 @@ jobs:
 
           git tag -a "v${new_version}" -m "v${new_version}"
           git push origin "v${new_version}"
+          echo "version=${new_version}" >> "$GITHUB_OUTPUT"
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.bump.outputs.version }}
+        run: |
+          gh release create "v${VERSION}" --verify-tag --title "v${VERSION}" --generate-notes

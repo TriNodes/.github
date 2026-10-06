@@ -1,64 +1,56 @@
-# Pull Request
-
 ## 📌 Description
-Explain what was changed and why.  
-If this PR is small (e.g., version bump, CI update, docs), keep it short.
 
----
+<!-- What changed and why? Keep it short for small changes (version bump, CI update, docs). -->
 
-## 📌 Type of Change
-Select one or more:
+## 📌 Type of change
 
-- [ ] Bug fix  
-- [ ] New feature  
-- [ ] Improvement  
-- [ ] Documentation update  
-- [ ] CI/CD change  
-- [ ] Refactor  
-- [ ] Performance  
+<!-- Select one or more. -->
+
+- [ ] 🐞 Bug fix
+- [ ] ✨ New feature
+- [ ] 🔧 Improvement
+- [ ] 📚 Documentation update
+- [ ] ⚙️ CI/CD change
+- [ ] ♻️ Refactor
+- [ ] ⚡ Performance
 - [ ] Other (specify below)
 
-**Other:**  
-<!-- Optional -->
-
----
+**Other:** <!-- Optional -->
 
 ## 📌 Checklist
-- [ ] Tested locally (if applicable)  
-- [ ] No build errors  
-- [ ] Follows coding standards  
-- [ ] Follows commit standards (Conventional Commits)  
-- [ ] Follows branch naming standards  
-- [ ] Ready for review  
 
----
+- [ ] Tested locally (if applicable)
+- [ ] No build errors
+- [ ] Follows coding standards
+- [ ] PR title and commits follow [Conventional Commits](https://www.conventionalcommits.org)
+- [ ] Branch name follows the naming standard
+- [ ] Documentation updated (if applicable)
+- [ ] Ready for review
 
-## 📌 Version Bump (SemVer)
-Select one:
+## 📌 Version bump (SemVer)
 
-- [ ] `bump:major` – breaking changes  
-- [ ] `bump:minor` – new features  
-- [ ] `bump:patch` – bug fixes  
-- [ ] `bump:build` – CI/docs/config-only changes  
-- [ ] `bump:none` – no version bump required  
+<!-- Select one. A maintainer applies the matching `bump:*` label. -->
 
----
+- [ ] `bump:major` – breaking changes
+- [ ] `bump:minor` – new features
+- [ ] `bump:patch` – bug fixes
+- [ ] `bump:build` – CI/docs/config-only changes
+- [ ] `bump:none` – no version bump required
 
-## 📌 Related Issues
-Link any related issues:
+## 📌 Breaking changes
 
-Example:  
-`Closes #123`  
-`Fixes #456`  
-`Relates to #789`
+<!-- Describe the migration path, or write "None". -->
 
----
+None
 
-## 📌 Screenshots / Evidence
-If applicable, add screenshots, logs, or output that helps reviewers understand the change.
+## 📌 Related issues
 
----
+<!-- Examples: Closes #123 · Fixes #456 · Relates to #789 -->
 
-## 📌 Additional Notes
-Add any extra context reviewers should know.  
-Optional section — leave empty if not needed.
+## 📌 Screenshots / evidence
+
+<!-- Screenshots, logs or output that help reviewers understand the change. -->
+
+## 📌 Additional notes
+
+<!-- Optional. Extra context reviewers should know. -->

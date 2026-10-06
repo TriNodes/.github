@@ -1,83 +1,95 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/TriNodes/.github/main/assets/headers/contributing.svg" alt="Contributing to TriNodes" width="100%">
+</p>
+
 # Contributing to TriNodes
 
-Obrigado pelo teu interesse em contribuir para a organização **TriNodes**.  
-Este documento explica como abrir issues, submeter pull requests, seguir o nosso workflow de desenvolvimento e manter consistência em toda a organização.
+Thank you for your interest in contributing to **TriNodes**. This guide explains how to open issues, submit pull requests and follow the development workflow shared by every repository in the organization.
+
+> [!TIP]
+> Each repository may add its own `CONTRIBUTING.md` with project-specific steps (setup, tests, scripts). When it exists, it takes precedence over this file.
 
 ---
 
-## 📌 Opening Issues
+## 🔁 Workflow at a glance
 
-Quando abrires uma issue:
-
-- Descreve claramente o problema ou pedido
-- Inclui passos de reprodução (se aplicável)
-- Adiciona labels relevantes
-- Usa os templates disponíveis em `.github/ISSUE_TEMPLATE/`
-- Marca com `security` se for relacionado com segurança
-- Marca com `bump:*` se implicar alteração de versão
+```mermaid
+flowchart LR
+  I["📝 Issue"] --> B["🌿 Branch<br/>feature/…  fix/…"]
+  B --> C["💬 Conventional<br/>Commits"]
+  C --> PR["🔀 Pull request"]
+  PR --> CHK{"✅ CI + security<br/>checks pass"}
+  CHK --> REV["👥 CODEOWNERS<br/>review"]
+  REV --> MG["🚢 Merge"]
+  MG --> REL["📦 Release<br/>(if applicable)"]
+```
 
 ---
 
-## 📌 Submitting Pull Requests
+## 📝 Opening issues
 
-Segue estes passos ao submeter uma PR:
+Use the issue forms — they are loaded automatically when you click **New issue**.
 
-### 1. Cria uma branch com nome consistente
-- `feature/<nome>`
-- `fix/<nome>`
-- `refactor/<nome>`
-- `chore/<nome>`
-- `docs/<nome>`
+| You want to… | Use |
+|---|---|
+| Report something that is broken | **Bug report** |
+| Propose an improvement | **Feature request** |
+| Track internal or maintenance work | **Task** |
+| Ask for help or clarification | **Question** |
+| Report a vulnerability | **Do not open an issue** — follow the [Security Policy](https://github.com/TriNodes/.github/blob/main/.github/SECURITY.md) |
 
-### 2. Usa **Conventional Commits**
-Exemplos:
-- `feat: adicionar funcionalidade X`
-- `fix: corrigir bug Y`
-- `refactor: melhorar estrutura Z`
-- `docs: atualizar documentação`
-- `chore: tarefas internas`
+Good issues describe the problem clearly, include reproduction steps, and link related issues or PRs. Labels are applied during triage; see [Standards → Labels](https://github.com/TriNodes/.github/blob/main/.github/STANDARDS.md#-5-labels).
 
-### 3. Garante que todos os checks passam
+---
+
+## 🔀 Submitting pull requests
+
+### 1. Create a branch with a consistent name
+
+`feature/<name>` · `fix/<name>` · `hotfix/<name>` · `refactor/<name>` · `chore/<name>` · `docs/<name>`
+
+### 2. Use Conventional Commits
+
+```text
+feat: add user authentication module
+fix: resolve crash on login
+docs: update API documentation
+refactor: simplify the user service
+chore: update dependencies
+```
+
+The pull request **title** is validated against the same convention. The full list of types is in [Standards](https://github.com/TriNodes/.github/blob/main/.github/STANDARDS.md#-1-commit-standards).
+
+### 3. Make sure every check passes
+
 - Lint
 - Tests
 - Build
-- Security Scan
-- Workflow Permissions Scan
+- Security scan
+- Commit and PR-title lint
 
-### 4. Adiciona labels de version bump (se necessário)
-- `bump:major`
-- `bump:minor`
-- `bump:patch`
+### 4. Add the version-bump label (when applicable)
 
-### 5. Solicita revisão aos CODEOWNERS
-Os ficheiros são automaticamente atribuídos aos responsáveis definidos em `CODEOWNERS`.
+`bump:major` · `bump:minor` · `bump:patch` · `bump:build` · `bump:none`
 
----
+### 5. Request review
 
-## 📌 Development Workflow
-
-Todos os repositórios seguem o mesmo fluxo:
-
-1. Criar branch  
-2. Commitar com Conventional Commits  
-3. Abrir PR  
-4. Passar CI  
-5. Revisão dos CODEOWNERS  
-6. Merge  
-7. Release automático (se aplicável)
+Files are assigned to reviewers automatically through `CODEOWNERS`. Keep pull requests small and focused; do not mix unrelated changes or formatting-only changes with logic changes.
 
 ---
 
-## 📌 Running Projects Locally
+## 💻 Running projects locally
 
-Cada repositório contém um README com instruções específicas.  
-Segue sempre as instruções desse projeto.
+Every repository has a README with its own setup instructions. Always follow the project's README.
 
 ---
 
-## 📌 Security
+## 🔐 Security
 
-Problemas de segurança **não devem ser reportados publicamente**.
+Security problems **must not** be reported publicly. Follow the [Security Policy](https://github.com/TriNodes/.github/blob/main/.github/SECURITY.md).
 
-Segue as instruções em:
+---
 
+## 🤝 Code of Conduct
+
+By participating you agree to follow our [Code of Conduct](https://github.com/TriNodes/.github/blob/main/.github/CODE_OF_CONDUCT.md).

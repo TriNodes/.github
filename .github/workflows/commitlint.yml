@@ -1,5 +1,8 @@
 name: Commitlint
 
+# Validates every commit of a pull request against Conventional Commits.
+# Runs on this repository's own PRs and can be called from other repositories.
+
 on:
   pull_request:
     types:
@@ -7,13 +10,16 @@ on:
       - synchronize
       - reopened
       - ready_for_review
+  workflow_call:
+
+permissions:
+  contents: read
 
 jobs:
   commitlint:
+    name: Commitlint
     runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
+    timeout-minutes: 5
 
     steps:
       - name: Checkout repository

@@ -1,0 +1,122 @@
+name: 🐞 Bug report
+description: Report a problem or unexpected behaviour
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug.
+
+        > ⚠️ **Do not report security vulnerabilities here.** Follow the [Security Policy](https://github.com/TriNodes/.github/blob/main/.github/SECURITY.md) instead.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug description
+      description: A clear and concise description of the problem.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      value: |
+        1. Go to '...'
+        2. Click on '...'
+        3. Scroll to '...'
+        4. See the error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+      description: What should have happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour
+      description: What actually happened?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity / impact
+      options:
+        - Low — minor inconvenience
+        - Medium — affects normal usage
+        - High — blocks a feature
+        - Critical — app unusable or data loss
+    validations:
+      required: true
+
+  - type: dropdown
+    id: reproducibility
+    attributes:
+      label: Reproducibility
+      description: How often does the issue occur?
+      options:
+        - Always
+        - Sometimes
+        - Rarely
+        - I could only reproduce it once
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected area
+      multiple: true
+      options:
+        - Frontend
+        - Backend
+        - API
+        - Database
+        - CI/CD
+        - Other
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      value: |
+        - OS:
+        - Browser:
+        - App version / commit hash:
+        - Device:
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Paste relevant logs or error messages. Attach a file if they are long. **Remove tokens, passwords and personal data first.**
+      render: shell
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots / videos
+      description: Drag and drop images or recordings here.
+
+  - type: textarea
+    id: related
+    attributes:
+      label: Related issues / PRs
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing issues and this is not a duplicate.
+          required: true
+        - label: I removed secrets and personal data from everything I pasted.
+          required: true

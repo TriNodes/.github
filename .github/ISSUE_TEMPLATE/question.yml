@@ -1,0 +1,33 @@
+name: ❓ Question
+description: Ask a question or request clarification
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Check the repository README and existing issues first — your question may already be answered.
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: Describe your question clearly and concisely.
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Relevant details, examples or background that help us understand your question.
+
+  - type: textarea
+    id: goal
+    attributes:
+      label: What you want to know
+      description: What kind of answer or clarification are you looking for?
+
+  - type: textarea
+    id: related
+    attributes:
+      label: Related issues / PRs

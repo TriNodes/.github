@@ -1,42 +1,126 @@
-name: Security Scan
+name: Reusable Security Scan
+
+# Security suite for any TriNodes repository.
+#
+#   CodeQL ............ static analysis (public repos, or private with GitHub Advanced Security)
+#   Dependency review . blocks PRs that add vulnerable dependencies (same condition as CodeQL)
+#   npm audit ......... known vulnerabilities in package-lock.json
+#   OSV-Scanner ....... known vulnerabilities from the OSV database
+#   Gitleaks .......... secrets in the full git history
+#   Sensitive files ... keys, certificates and .env files committed by mistake
+#   Workflow perms .... missing or dangerous `permissions` in workflows
+#
+# Usage (the caller MUST grant these permissions, a called workflow cannot elevate them):
+#
+#   jobs:
+#     security:
+#       permissions:
+#         contents: read
+#         actions: read
+#         security-events: write
+#         issues: write
+#       uses: TriNodes/.github/.github/workflows/security.yml@main
+#       with:
+#         languages: '["javascript-typescript"]'
+#
+# Branch-protection auditing is not done here: the workflow token cannot read
+# branch-protection settings. It is part of health-check.yml instead.
 
 on:
-  schedule:
-    - cron: "0 3 * * *" # Todos os dias às 03:00
-  push:
-    branches: ["main"]
+  workflow_call:
+    inputs:
+      languages:
+        description: JSON array of CodeQL languages (for example '["javascript-typescript"]' or '["actions"]')
+        type: string
+        default: '["javascript-typescript"]'
+      advanced_security:
+        description: Set to true when a PRIVATE repository has GitHub Advanced Security (enables CodeQL, dependency review and SARIF upload)
+        type: boolean
+        default: false
+      enable_osv:
+        description: Run OSV-Scanner (disable for repositories without any package manifest)
+        type: boolean
+        default: true
+      audit_level:
+        description: Minimum npm audit severity that fails the job (low, moderate, high, critical)
+        type: string
+        default: high
 
 permissions:
   contents: read
-  security-events: write
-  issues: write
 
 jobs:
-  codeql:
+  meta:
+    name: Repository metadata
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      code_scanning: ${{ steps.vis.outputs.code_scanning }}
+    steps:
+      # Code scanning needs GitHub Advanced Security on private repositories.
+      - name: Detect whether code scanning is available
+        id: vis
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ADVANCED_SECURITY: ${{ inputs.advanced_security }}
+        run: |
+          private=$(gh api "repos/${GITHUB_REPOSITORY}" --jq .private)
+          if [ "$private" = "false" ] || [ "$ADVANCED_SECURITY" = "true" ]; then
+            echo "code_scanning=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "code_scanning=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Private repository without advanced_security: CodeQL, dependency review and SARIF upload are skipped."
+          fi
+
+  codeql:
+    name: CodeQL (${{ matrix.language }})
+    needs: meta
+    if: needs.meta.outputs.code_scanning == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ${{ fromJSON(inputs.languages) }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v4
         with:
-          languages: javascript
+          languages: ${{ matrix.language }}
 
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: /language:${{ matrix.language }}
 
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
-
-  secret_scan:
+  dependency_review:
+    name: Dependency review
+    needs: meta
+    if: github.event_name == 'pull_request' && needs.meta.outputs.code_scanning == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
     steps:
-      - name: Secret scanning
-        uses: github/secret-scanning-action@v1
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-  dependency_scan:
+      - name: Review dependency changes
+        uses: actions/dependency-review-action@v5
+        with:
+          fail-on-severity: high
+
+  npm_audit:
+    name: npm audit
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -46,186 +130,168 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install dependencies
-        run: npm ci
-
+      # `npm audit` reads package-lock.json; no install is needed.
       - name: Audit dependencies
-        run: npm audit --json > audit.json || true
+        env:
+          AUDIT_LEVEL: ${{ inputs.audit_level }}
+        run: |
+          if [ ! -f package-lock.json ]; then
+            echo "No package-lock.json - skipping npm audit." | tee -a "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          npm audit --json > audit.json || true
+          npm audit --audit-level="$AUDIT_LEVEL"
 
       - name: Upload audit report
+        if: always() && hashFiles('audit.json') != ''
         uses: actions/upload-artifact@v4
         with:
-          name: dependency-audit
+          name: npm-audit
           path: audit.json
 
-  supply_chain_scan:
+  osv:
+    name: OSV-Scanner
+    needs: meta
+    if: inputs.enable_osv
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.6.0
+    with:
+      upload-sarif: ${{ needs.meta.outputs.code_scanning == 'true' }}
+      fail-on-vuln: true
+
+  gitleaks:
+    name: Gitleaks
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GITLEAKS_VERSION: 8.30.1
+      # SHA-256 of gitleaks_8.30.1_linux_x64.tar.gz, from the official checksums file of the release.
+      GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
     steps:
-      - name: Checkout repository
+      - name: Checkout repository (full history)
         uses: actions/checkout@v4
-
-      - name: Run OSV scanner
-        uses: google/osv-scanner-action@v1
         with:
-          scan: "."
-          output: "osv-results.json"
+          fetch-depth: 0
 
-      - name: Upload OSV report
-        uses: actions/upload-artifact@v4
-        with:
-          name: osv-scan
-          path: osv-results.json
+      # The gitleaks-action needs a paid license for organization repositories, so the
+      # open-source CLI is used directly, pinned to a version and verified by checksum.
+      - name: Install Gitleaks
+        run: |
+          curl -sSfL -o gitleaks.tar.gz \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          echo "${GITLEAKS_SHA256}  gitleaks.tar.gz" | sha256sum -c -
+          tar -xzf gitleaks.tar.gz gitleaks
 
-  gitleaks_scan:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Run Gitleaks
-        uses: gitleaks/gitleaks-action@v2
-        with:
-          args: detect --report-format json --report-path gitleaks.json
+      - name: Scan history for secrets
+        run: ./gitleaks detect --source . --redact --verbose --exit-code 1 --report-format sarif --report-path gitleaks.sarif
 
       - name: Upload Gitleaks report
+        if: always() && hashFiles('gitleaks.sarif') != ''
         uses: actions/upload-artifact@v4
         with:
           name: gitleaks-report
-          path: gitleaks.json
+          path: gitleaks.sarif
 
-  workflow_permissions_scan:
+  sensitive_files:
+    name: Sensitive files
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Scan tracked files
+        run: |
+          # Likely to contain secrets or private keys -> fail.
+          blocked=$(git ls-files | grep -E -i '(^|/)(\.env(\.[^/]+)?|[^/]+\.(pem|p12|pfx|key|keystore|jks)|id_(rsa|dsa|ecdsa|ed25519))$' \
+            | grep -v -E -i '\.(example|sample|template)$' || true)
+          # Usually public, but worth a human look -> warn.
+          review=$(git ls-files | grep -E -i '\.(crt|cert|cer)$' || true)
+
+          {
+            echo "## Sensitive files"
+            echo
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ -n "$review" ]; then
+            while IFS= read -r f; do echo "::warning file=$f::Certificate committed - confirm it is public"; done <<< "$review"
+            { echo "**Certificates to review**"; echo; sed 's/^/- `/; s/$/`/' <<< "$review"; echo; } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+          if [ -n "$blocked" ]; then
+            while IFS= read -r f; do echo "::error file=$f::Sensitive file committed to the repository"; done <<< "$blocked"
+            { echo "**Blocked files**"; echo; sed 's/^/- `/; s/$/`/' <<< "$blocked"; } >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+
+          echo "No sensitive files found." >> "$GITHUB_STEP_SUMMARY"
+
+  workflow_permissions:
+    name: Workflow permissions
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Scan workflow permissions
         run: |
-          mkdir scan
-          echo "# Workflow Permissions Report" > scan/workflow-permissions.md
+          shopt -s nullglob
+          status=0
+          {
+            echo "## Workflow permissions"
+            echo
+            echo "| Workflow | Finding |"
+            echo "|---|---|"
+          } >> "$GITHUB_STEP_SUMMARY"
 
-          for wf in $(ls .github/workflows/*.yml); do
-            echo "## $wf" >> scan/workflow-permissions.md
-
-            if grep -q "permissions:" "$wf"; then
-              echo "- ✔ Permissions declaradas" >> scan/workflow-permissions.md
-            else
-              echo "- ❌ Faltam permissões explícitas" >> scan/workflow-permissions.md
+          for wf in .github/workflows/*.yml .github/workflows/*.yaml; do
+            if ! grep -Eq '^\s*permissions:' "$wf"; then
+              echo "::warning file=$wf::No explicit permissions block (falls back to the repository default)"
+              echo "| \`$wf\` | ⚠️ no explicit \`permissions\` |" >> "$GITHUB_STEP_SUMMARY"
             fi
-
-            if grep -q "contents: write" "$wf"; then
-              echo "- ⚠ PERIGO: contents: write encontrado" >> scan/workflow-permissions.md
+            if grep -Eq 'permissions:\s*write-all' "$wf"; then
+              echo "::error file=$wf::write-all grants every permission to the token"
+              echo "| \`$wf\` | ❌ \`write-all\` |" >> "$GITHUB_STEP_SUMMARY"
+              status=1
             fi
-
-            if grep -q "id-token: write" "$wf"; then
-              echo "- ⚠ PERIGO: id-token: write encontrado" >> scan/workflow-permissions.md
+            if grep -Eq '^\s*id-token:\s*write' "$wf"; then
+              echo "::notice file=$wf::id-token: write found - document why it is needed"
+              echo "| \`$wf\` | ℹ️ \`id-token: write\` (needs justification) |" >> "$GITHUB_STEP_SUMMARY"
             fi
-          done
-
-      - name: Upload workflow permissions report
-        uses: actions/upload-artifact@v4
-        with:
-          name: workflow-permissions
-          path: scan/workflow-permissions.md
-
-  sensitive_files_scan:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Scan for sensitive files
-        run: |
-          mkdir sensitive
-          echo "# Sensitive Files Report" > sensitive/files.md
-
-          patterns="*.env *.pem *.p12 *.key *.crt *.cert"
-          found=false
-
-          for p in $patterns; do
-            matches=$(git ls-files "$p")
-            if [ ! -z "$matches" ]; then
-              found=true
-              echo "## $p" >> sensitive/files.md
-              echo "$matches" >> sensitive/files.md
+            if grep -Eq '^\s*contents:\s*write' "$wf"; then
+              echo "::notice file=$wf::contents: write found - document why it is needed"
+              echo "| \`$wf\` | ℹ️ \`contents: write\` (needs justification) |" >> "$GITHUB_STEP_SUMMARY"
             fi
           done
+          exit "$status"
 
-          if [ "$found" = false ]; then
-            echo "Nenhum ficheiro sensível encontrado." >> sensitive/files.md
-          fi
-
-      - name: Upload sensitive files report
-        uses: actions/upload-artifact@v4
-        with:
-          name: sensitive-files
-          path: sensitive/files.md
-
-  branch_protection_scan:
+  notify:
+    name: Open issue on scheduled failure
+    needs: [codeql, dependency_review, npm_audit, osv, gitleaks, sensitive_files, workflow_permissions]
+    if: always() && github.event_name == 'schedule' && contains(needs.*.result, 'failure')
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      issues: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
     steps:
-      - name: Check branch protection
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Open or update the security issue
         run: |
-          echo "# Branch Protection Report" > bp.md
+          title="Scheduled security scan failed"
+          run_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          body="The scheduled security scan failed on $(date -u +%F). Review the findings: ${run_url}"
 
-          if gh api repos/${{ github.repository }}/branches/main/protection --silent >/dev/null 2>&1; then
-            echo "- ✔ Branch protection ativo" >> bp.md
+          existing=$(gh issue list --state open --label security --search "\"$title\" in:title" --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "$body"
           else
-            echo "- ❌ Branch protection NÃO está ativo" >> bp.md
-          fi
-
-      - name: Upload branch protection report
-        uses: actions/upload-artifact@v4
-        with:
-          name: branch-protection
-          path: bp.md
-
-  create_issue_if_vulnerable:
-    runs-on: ubuntu-latest
-    needs:
-      - dependency_scan
-      - supply_chain_scan
-      - gitleaks_scan
-      - sensitive_files_scan
-      - workflow_permissions_scan
-      - branch_protection_scan
-
-    steps:
-      - name: Create issue if vulnerabilities found
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          issue_body="## Security Alerts Detected\n\n"
-
-          if grep -q "severity" dependency-audit/audit.json; then
-            issue_body+="### ⚠ Vulnerabilidades em dependências\n"
-          fi
-
-          if grep -q "vulnerability" osv-scan/osv-results.json; then
-            issue_body+="### ⚠ Vulnerabilidades de supply chain\n"
-          fi
-
-          if grep -q "leak" gitleaks-report/gitleaks.json; then
-            issue_body+="### ⚠ Segredos expostos\n"
-          fi
-
-          if ! grep -q "Nenhum ficheiro sensível encontrado" sensitive-files/files.md; then
-            issue_body+="### ⚠ Ficheiros sensíveis encontrados\n"
-          fi
-
-          if grep -q "PERIGO" workflow-permissions/workflow-permissions.md; then
-            issue_body+="### ⚠ Permissões perigosas nos workflows\n"
-          fi
-
-          if grep -q "NÃO está ativo" branch-protection/bp.md; then
-            issue_body+="### ⚠ Branch protection desativado\n"
-          fi
-
-          if [ "$issue_body" != "## Security Alerts Detected\n\n" ]; then
-            gh issue create \
-              --title "⚠ Security Alerts Detected" \
-              --body "$issue_body" \
-              --label "security"
+            gh issue create --title "$title" --body "$body" --label security \
+              || gh issue create --title "$title" --body "$body"
           fi

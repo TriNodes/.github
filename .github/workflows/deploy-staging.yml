@@ -1,14 +1,48 @@
 name: Reusable Deploy to Staging
 
-permissions:
-  contents: read
+# Builds a static export and uploads it over FTP(S).
+#
+# Requirements in the calling repository:
+#   - `npm run build` (or `build_command`) must write the site to `output_dir`.
+#     For Next.js that means `output: "export"` in next.config — the old
+#     `next export` command was removed in Next.js 14.
+#   - Secrets FTP_HOST, FTP_USER and FTP_PASS (repository or `staging` environment).
+#
+# Usage:
+#   jobs:
+#     staging:
+#       uses: TriNodes/.github/.github/workflows/deploy-staging.yml@main
+#       with:
+#         ftp_dir: /public_html/staging/
+#       secrets: inherit
 
 on:
   workflow_call:
     inputs:
       ftp_dir:
+        description: Remote directory to upload to (for example /public_html/staging/)
         required: true
         type: string
+      node_version:
+        description: Node.js version
+        type: string
+        default: "22"
+      build_command:
+        description: Command that builds the static site
+        type: string
+        default: npm run build
+      output_dir:
+        description: Directory (relative to the repository root) produced by the build
+        type: string
+        default: out
+      protocol:
+        description: FTP protocol (ftp, ftps or ftps-legacy). Plain ftp sends the password unencrypted.
+        type: string
+        default: ftps
+      clean_slate:
+        description: DANGEROUS - delete everything in the remote directory before uploading
+        type: boolean
+        default: false
     secrets:
       FTP_HOST:
         required: true
@@ -17,41 +51,55 @@ on:
       FTP_PASS:
         required: true
 
+permissions:
+  contents: read
+
+# Never run two deployments to the same directory at once, and never cancel one halfway.
+concurrency:
+  group: deploy-staging-${{ inputs.ftp_dir }}
+  cancel-in-progress: false
+
 jobs:
   deploy:
+    name: Deploy to staging
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: staging
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: ${{ inputs.node_version }}
           cache: npm
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Build Next.js (export)
+      - name: Build
         env:
           NODE_ENV: production
-        run: |
-          npm run build
-          npx next export
+        run: ${{ inputs.build_command }}
 
-      - name: Ensure out directory exists
-        run: mkdir -p out
+      - name: Verify build output
+        env:
+          OUTPUT_DIR: ${{ inputs.output_dir }}
+        run: |
+          if [ ! -d "$OUTPUT_DIR" ] || [ -z "$(ls -A "$OUTPUT_DIR")" ]; then
+            echo "::error::Build output '$OUTPUT_DIR' is missing or empty - refusing to deploy. For Next.js, set output: 'export' in next.config."
+            exit 1
+          fi
 
       - name: Upload via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
         with:
           server: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASS }}
-          local-dir: ./out
+          protocol: ${{ inputs.protocol }}
+          local-dir: ./${{ inputs.output_dir }}/
           server-dir: ${{ inputs.ftp_dir }}
-          dangerous-clean-slate: true
+          dangerous-clean-slate: ${{ inputs.clean_slate }}

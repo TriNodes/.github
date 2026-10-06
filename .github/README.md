@@ -1,123 +1,153 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/TriNodes/.github/main/assets/banner.svg" alt="TriNodes — Innovation That Scales" width="100%">
+</p>
+
 # 🎛️ TriNodes GitHub Organization Configuration
 
-This repository contains all global configuration used across the **TriNodes** GitHub organization.  
-It centralizes standards, governance, security, reusable workflows, and documentation applied to every repository.
+> The single source of truth for community-health files, engineering standards and reusable CI/CD workflows used across every **TriNodes** repository.
+
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-fe5196?logo=conventionalcommits&logoColor=white)](https://www.conventionalcommits.org)
+[![SemVer](https://img.shields.io/badge/SemVer-2.0.0-3F4551)](https://semver.org)
+[![Security Policy](https://img.shields.io/badge/Security-Policy-b60205)](https://github.com/TriNodes/.github/blob/main/.github/SECURITY.md)
 
 ---
 
-## 📂 Contents
+## 🧭 How this repository reaches the other repositories
 
-### 📝 Issue Templates
+Not everything here is applied the same way. GitHub **inherits** some files automatically, everything else is **opt-in** or **reference material**.
 
-Standardized templates for:
+```mermaid
+flowchart LR
+  subgraph ORG["TriNodes/.github (this repository)"]
+    A["🏛️ Community health<br/>Code of Conduct · Contributing<br/>Governance · Security · Support"]
+    B["📝 Issue forms<br/>🔀 Pull request template"]
+    C["⚙️ Reusable workflows<br/>ci · lint · test · security<br/>release · deploy · sync-labels · stale"]
+    D["🏷️ labels.json"]
+    E["📚 Standards · Handbook<br/>Architecture guidelines"]
+  end
 
-- Bug reports  
-- Feature requests  
-- Tasks  
-- Questions  
-- Private security reports  
+  subgraph REPO["Any TriNodes repository"]
+    R["Repository"]
+  end
 
----
+  A -- "inherited automatically<br/>if the repo has no file of its own" --> R
+  B -- "inherited automatically" --> R
+  C -- "opt-in: uses: TriNodes/.github/…@main" --> R
+  D -- "opt-in: via sync-labels.yml" --> R
+  E -. "linked from docs" .-> R
+```
 
-### 🔀 Pull Request Template
+| Area | Files | Reaches other repositories… |
+|---|---|---|
+| 🏛️ Community health | `CODE_OF_CONDUCT.md`, `CONTRIBUTING.md`, `GOVERNANCE.md`, `SECURITY.md`, `SUPPORT.md` | **Automatically** (public and private repos) when the repo has no file of its own |
+| 📝 Issue forms | `ISSUE_TEMPLATE/` (`bug_report`, `feature_request`, `task`, `question`, `config`) | **Automatically**, as long as the repo has no `ISSUE_TEMPLATE` folder of its own |
+| 🔀 Pull request template | `pull_request_template.md` | **Automatically** |
+| ⚙️ Reusable workflows | `workflows/*.yml` | **Opt-in** — each repo calls them with `uses:` |
+| 🏷️ Labels | `labels.json` | **Opt-in** — through `sync-labels.yml` |
+| 📚 Reference docs | `STANDARDS.md`, `HANDBOOK.md`, `ARCHITECTURE_GUIDELINES.md` | Read on GitHub; linked from the other documents |
+| 👥 Code owners | `CODEOWNERS` | **This repository only** — GitHub does not inherit `CODEOWNERS` |
+| 🏢 Organization profile | `profile/README.md` | Rendered on [github.com/TriNodes](https://github.com/TriNodes) |
 
-Ensures:
-
-- Consistent review process  
-- Clear documentation  
-- Mandatory Conventional Commits  
-- Version bump labels (`bump:*`)  
-
----
-
-### 👥 CODEOWNERS
-
-Defines:
-
-- Area ownership  
-- Mandatory reviewers  
-- Sensitive file protection  
-- Governance rules  
-
----
-
-### ⚙️ Reusable Workflows
-
-Shared GitHub Actions for:
-
-- Lint  
-- Tests  
-- Build  
-- Staging deploy  
-- Production deploy  
-- Automatic releases  
-- Label sync  
-- Stale bot  
-- Enterprise Security Suite  
-- Workflow Permissions Scan  
-- Branch Protection Scan  
-- Sensitive Files Scan  
+> [!IMPORTANT]
+> Workflows placed in this repository do **not** run in other repositories by themselves. A repository only gets them by calling them (see below). The same applies to `labels.json` and `dependabot.yml` — GitHub has no organization-wide default for either.
 
 ---
 
-### 🔒 Dependabot Configuration
+## ⚙️ Reusable workflows
 
-Automated dependency updates for:
+Call them from any repository in the organization. Private repositories can call workflows stored in this public repository.
 
-- Security  
-- Stability  
-- Alerts  
+```yaml
+# .github/workflows/ci.yml  (in the consuming repository)
+name: CI
 
----
+on:
+  pull_request:
+  push:
+    branches: [main]
 
-## 🎯 Purpose
+permissions:
+  contents: read
 
-Centralizing these files ensures:
+jobs:
+  ci:
+    uses: TriNodes/.github/.github/workflows/ci.yml@main
+    with:
+      node_version: "22"
+```
 
-- Consistent development workflow  
-- Standardized communication in issues and PRs  
-- Unified CI/CD pipelines  
-- Clear ownership and review rules  
-- Strong security posture  
-- Automated governance  
-- Simplified maintenance  
-- Reduced divergence between repositories  
+| Workflow | Purpose | Main inputs | Permissions the **caller** must grant |
+|---|---|---|---|
+| `ci.yml` | Install, build, lint and test (Node.js) | `node_version` | `contents: read` |
+| `lint.yml` | `npm run lint` | `node_version` | `contents: read` |
+| `test.yml` | `npm test` + upload of test results | `node_version` | `contents: read` |
+| `security.yml` | CodeQL, dependency review, `npm audit`, OSV, Gitleaks, sensitive-file and workflow-permission scans | `languages`, `advanced_security`, `enable_osv`, `audit_level` | `contents: read`, `actions: read`, `security-events: write`, `issues: write` |
+| `release.yml` | Version bump, tag and GitHub Release | `bump`, `node_version` | `contents: write` |
+| `sync-labels.yml` | Sync `labels.json` and report orphan labels | `report_orphans` | `issues: write` |
+| `deploy-staging.yml` | Build a static export and deploy over FTPS | `ftp_dir`, `output_dir`, `build_command`, `protocol` | `contents: read` + `FTP_*` secrets |
+| `deploy-production.yml` | Same as staging, behind the `production` environment | same as staging | `contents: read` + `FTP_*` secrets |
+| `stale.yml` | Warn, then close inactive issues and PRs | — | `issues: write`, `pull-requests: write` |
+| `auto-label.yml` | Label PRs from changed paths (needs `.github/labeler.yml`) | — | `contents: read`, `pull-requests: write` |
+| `commitlint.yml` | Validate commits against Conventional Commits | — | `contents: read` |
+| `pr-title-lint.yml` | Validate the PR title against Conventional Commits | — | `pull-requests: read` |
+| `auto-merge.yml` | Squash-merge PRs labelled `automerge` | — | `contents: write`, `pull-requests: write` |
 
----
+Workflows that only run **in this repository**: `health-check.yml` (weekly organization audit) and `self-security.yml` (runs `security.yml` against this repo).
 
-## 🛡️ Security & Governance
-
-### 🧩 Enterprise Security Suite
-
-Includes:
-
-- CodeQL  
-- Secret scanning  
-- OSV scanner  
-- Gitleaks  
-- Sensitive files scan  
-- Workflow permissions scan  
-- Branch protection scan  
-- Automatic security issue creation  
-
----
-
-### 🏷️ Label Governance
-
-- Automatic label synchronization  
-- Detection of orphaned labels  
-- Automatic issues for inconsistencies  
+> [!NOTE]
+> A called workflow can never receive more permissions than its caller grants. That is why `release.yml`, `security.yml` and others document the permissions the caller must declare.
 
 ---
 
-### 🔐 Workflow Governance
+## 🛡️ Security & governance
 
-- Minimum permissions enforced  
-- Protection against unnecessary `contents: write`  
-- Protection against improper `id-token: write`  
+```mermaid
+flowchart LR
+  P["Pull request"] --> L["commitlint + PR title lint"]
+  P --> CI["ci.yml<br/>build · lint · test"]
+  P --> S["security.yml<br/>CodeQL · dependency review<br/>npm audit · OSV · Gitleaks"]
+  L --> M{"Checks green<br/>+ CODEOWNERS approval"}
+  CI --> M
+  S --> M
+  M --> MG["Merge to main"]
+  MG --> R["release.yml<br/>tag + GitHub Release"]
+  R --> D["deploy-staging → deploy-production"]
+```
+
+- **Security suite** — see [`security.yml`](workflows/security.yml). CodeQL and dependency review upload to *Code scanning*, which on **private** repositories requires GitHub Advanced Security; they are skipped there unless `advanced_security: true`.
+- **Label governance** — `sync-labels.yml` keeps every repository aligned with [`labels.json`](labels.json) and opens one (deduplicated) issue when a repository has labels that are not in the catalogue.
+- **Workflow governance** — the workflow-permissions scan flags missing `permissions:` blocks and `write-all`, and lists every `contents: write` / `id-token: write` so it can be justified (see [GOVERNANCE](GOVERNANCE.md)).
+- **Organization health** — `health-check.yml` audits every repository weekly and keeps a single open `health-check` issue up to date.
 
 ---
 
-## 🔧 How It Works
+## 🚀 Adopting this in a new repository
 
-Any repository containing a `.github` folder automatically inherits the shared templates, workflows, governance rules, and security configurations defined here.
+1. Create the repository from a TriNodes template (see the [Handbook](HANDBOOK.md)).
+2. Add a `ci.yml`, `security.yml` and `sync-labels.yml` caller workflow (snippets above).
+3. Add a `.github/dependabot.yml` and a `.github/CODEOWNERS` that uses real GitHub teams (for example `@TriNodes/it-development-team`).
+4. Enable branch protection (or a ruleset) on `main`: required status checks, required CODEOWNERS review, no force-push.
+5. Enable secret scanning + push protection in the repository settings.
+
+---
+
+## 🔧 Maintaining this repository
+
+- Every change goes through a pull request reviewed by [CODEOWNERS](CODEOWNERS).
+- Consumers reference `@main`, so a merge here changes behaviour everywhere. Prefer small, backward-compatible changes and add new inputs with safe defaults.
+- `health-check.yml` needs an optional `ORG_AUDIT_TOKEN` secret (a fine-grained token or GitHub App with read-only *Contents*, *Metadata* and *Administration* on the repositories to audit). Without it only public repositories are audited.
+
+---
+
+## 📖 Documents
+
+| Document | Description |
+|---|---|
+| [Developer Handbook](HANDBOOK.md) | From first clone to production release |
+| [Contributing](CONTRIBUTING.md) | How to open issues and pull requests |
+| [Standards](STANDARDS.md) | Commits, branches, PRs, versions, labels |
+| [Architecture Guidelines](ARCHITECTURE_GUIDELINES.md) | Shared engineering principles |
+| [Governance](GOVERNANCE.md) | Roles, decisions, release and workflow rules |
+| [Security Policy](SECURITY.md) | Private vulnerability reporting |
+| [Support](SUPPORT.md) | Where to get help |
+| [Code of Conduct](CODE_OF_CONDUCT.md) | Community expectations |

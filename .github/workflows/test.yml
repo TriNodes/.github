@@ -1,14 +1,23 @@
 name: Tests
 
+# Run `npm test` on a Node.js project and upload any test results.
+
 on:
   workflow_call:
+    inputs:
+      node_version:
+        description: Node.js version used to run the tests
+        type: string
+        default: "22"
 
 permissions:
   contents: read
 
 jobs:
   test:
+    name: Test
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
       - name: Checkout repository
@@ -19,7 +28,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: ${{ inputs.node_version }}
           cache: npm
 
       - name: Install dependencies

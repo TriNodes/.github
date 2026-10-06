@@ -1,5 +1,11 @@
 name: Auto Merge
 
+# Squash-merges pull requests that carry the `automerge` label.
+#
+# Note: merges performed with the default GITHUB_TOKEN do not trigger other
+# workflows (for example a release on push to main). Use a GitHub App or PAT in
+# the calling repository if a release must start from an auto-merge.
+
 on:
   pull_request:
     types:
@@ -7,22 +13,27 @@ on:
       - reopened
       - ready_for_review
       - synchronize
+  workflow_call:
+
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
   automerge:
+    name: Auto-merge
     if: contains(github.event.pull_request.labels.*.name, 'automerge')
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: Auto-merge PR
-        uses: pascalgn/automerge-action@v0.16.3
+        uses: pascalgn/automerge-action@v0.16.4
         env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MERGE_METHOD: squash
           MERGE_COMMIT_MESSAGE: pull-request-title
           MERGE_FORKS: false
           MERGE_RETRIES: 6
           MERGE_RETRY_SLEEP: 10000
-          MERGE_REQUIRED_LABELS: ""
-          MERGE_REMOVE_LABELS: "automerge"
-          MERGE_FILTER_AUTHOR: ""
+          MERGE_REMOVE_LABELS: automerge

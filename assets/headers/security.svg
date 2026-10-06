@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="200" viewBox="0 0 1280 200" role="img" aria-labelledby="t d">
+  <title id="t">Security Policy</title>
+  <desc id="d">Report vulnerabilities privately and responsibly</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0B1020"/>
+      <stop offset="1" stop-color="#17223F"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#38BDF8"/>
+      <stop offset="1" stop-color="#818CF8"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="200" rx="0" fill="url(#bg)"/>
+  <g opacity="0.28" stroke="url(#accent)" stroke-width="2"><line x1="810" y1="40" x2="930" y2="130"/><line x1="930" y1="130" x2="1040" y2="55"/><line x1="1040" y1="55" x2="1160" y2="120"/><line x1="930" y1="130" x2="950" y2="175"/><line x1="1040" y1="55" x2="1220" y2="40"/><line x1="1160" y1="120" x2="1220" y2="40"/><line x1="1160" y1="120" x2="1090" y2="165"/><line x1="950" y1="175" x2="1090" y2="165"/><line x1="1040" y1="55" x2="1090" y2="165"/></g>
+  <g opacity="0.45" fill="url(#accent)"><circle cx="810" cy="40" r="6"/><circle cx="930" cy="130" r="6"/><circle cx="1040" cy="55" r="6"/><circle cx="1160" cy="120" r="6"/><circle cx="950" cy="175" r="6"/><circle cx="1220" cy="40" r="6"/><circle cx="1090" cy="165" r="6"/></g>
+  
+  <path d="M118,47.199999999999996 L70,143.2 L166,143.2 Z" fill="none" stroke="url(#accent)" stroke-width="4.32" stroke-linejoin="round" stroke-linecap="round"/>
+  <circle cx="118" cy="47.199999999999996" r="10.56" fill="url(#accent)"/>
+  <circle cx="70" cy="143.2" r="10.56" fill="url(#accent)"/>
+  <circle cx="166" cy="143.2" r="10.56" fill="url(#accent)"/>
+  <text x="236" y="105.7" font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="54" font-weight="700" fill="#FFFFFF">Security Policy</text>
+  <text x="236" y="151.3" font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#94A3B8">Report vulnerabilities privately and responsibly</text>
+  <rect x="236" y="172" width="96" height="4" rx="2" fill="url(#accent)"/>
+</svg>
