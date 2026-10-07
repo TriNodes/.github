@@ -6,9 +6,7 @@
 
 > The single source of truth for community-health files, engineering standards and reusable CI/CD workflows used across every **TriNodes** repository.
 
-[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-fe5196?logo=conventionalcommits&logoColor=white)](https://www.conventionalcommits.org)
-[![SemVer](https://img.shields.io/badge/SemVer-2.0.0-3F4551)](https://semver.org)
-[![Security Policy](https://img.shields.io/badge/Security-Policy-b60205)](https://github.com/TriNodes/.github/blob/main/.github/SECURITY.md)
+**[Conventional Commits](https://www.conventionalcommits.org)** · **[SemVer](https://semver.org)** · **[Security Policy](https://github.com/TriNodes/.github/blob/main/.github/SECURITY.md)**
 
 ---
 
