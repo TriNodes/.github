@@ -1,14 +1,12 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/TriNodes/.github/main/assets/banner.svg" alt="TriNodes — Innovation That Scales" width="100%">
+  <img src="https://raw.githubusercontent.com/TriNodes/.github/main/assets/banner.png" alt="TriNodes — Innovation That Scales" width="720">
 </p>
 
 # 🎛️ TriNodes GitHub Organization Configuration
 
 > The single source of truth for community-health files, engineering standards and reusable CI/CD workflows used across every **TriNodes** repository.
 
-[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-fe5196?logo=conventionalcommits&logoColor=white)](https://www.conventionalcommits.org)
-[![SemVer](https://img.shields.io/badge/SemVer-2.0.0-3F4551)](https://semver.org)
-[![Security Policy](https://img.shields.io/badge/Security-Policy-b60205)](https://github.com/TriNodes/.github/blob/main/.github/SECURITY.md)
+**[Conventional Commits](https://www.conventionalcommits.org)** · **[SemVer](https://semver.org)** · **[Security Policy](https://github.com/TriNodes/.github/blob/main/.github/SECURITY.md)**
 
 ---
 
@@ -114,7 +112,7 @@ flowchart LR
   R --> D["deploy-staging → deploy-production"]
 ```
 
-- **Security suite** — see [`security.yml`](workflows/security.yml). CodeQL and dependency review upload to *Code scanning*, which on **private** repositories requires GitHub Advanced Security; they are skipped there unless `advanced_security: true`.
+- **Security suite** — see [`security.yml`](workflows/security.yml). CodeQL and dependency review upload to *Code scanning*, which on **private** repositories requires GitHub Advanced Security; they are skipped there unless `advanced_security: true`. Dependency review also needs the **Dependency graph** enabled in the repository settings (Settings → Advanced Security).
 - **Label governance** — `sync-labels.yml` keeps every repository aligned with [`labels.json`](labels.json) and opens one (deduplicated) issue when a repository has labels that are not in the catalogue.
 - **Workflow governance** — the workflow-permissions scan flags missing `permissions:` blocks and `write-all`, and lists every `contents: write` / `id-token: write` so it can be justified (see [GOVERNANCE](GOVERNANCE.md)).
 - **Organization health** — `health-check.yml` audits every repository weekly and keeps a single open `health-check` issue up to date.

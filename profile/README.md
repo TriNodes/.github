@@ -1,10 +1,9 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/TriNodes/.github/main/assets/banner.svg" alt="TriNodes — Innovation That Scales" width="100%">
+  <img src="https://raw.githubusercontent.com/TriNodes/.github/main/assets/banner.png" alt="TriNodes — Innovation That Scales" width="720">
 </p>
 
 <p align="center">
-  <a href="https://www.trinodes.com/"><img src="https://img.shields.io/badge/Website-trinodes.com-38BDF8?style=for-the-badge" alt="Website"></a>
-  <a href="mailto:contact@trinodes.com"><img src="https://img.shields.io/badge/Contact-contact%40trinodes.com-818CF8?style=for-the-badge" alt="Contact"></a>
+  <a href="https://www.trinodes.com/">trinodes.com</a> &nbsp;·&nbsp; <a href="mailto:contact@trinodes.com">contact@trinodes.com</a>
 </p>
 
 Welcome to the official **TriNodes** organization on GitHub.
