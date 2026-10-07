@@ -114,7 +114,7 @@ flowchart LR
   R --> D["deploy-staging → deploy-production"]
 ```
 
-- **Security suite** — see [`security.yml`](workflows/security.yml). CodeQL and dependency review upload to *Code scanning*, which on **private** repositories requires GitHub Advanced Security; they are skipped there unless `advanced_security: true`.
+- **Security suite** — see [`security.yml`](workflows/security.yml). CodeQL and dependency review upload to *Code scanning*, which on **private** repositories requires GitHub Advanced Security; they are skipped there unless `advanced_security: true`. Dependency review also needs the **Dependency graph** enabled in the repository settings (Settings → Advanced Security).
 - **Label governance** — `sync-labels.yml` keeps every repository aligned with [`labels.json`](labels.json) and opens one (deduplicated) issue when a repository has labels that are not in the catalogue.
 - **Workflow governance** — the workflow-permissions scan flags missing `permissions:` blocks and `write-all`, and lists every `contents: write` / `id-token: write` so it can be justified (see [GOVERNANCE](GOVERNANCE.md)).
 - **Organization health** — `health-check.yml` audits every repository weekly and keeps a single open `health-check` issue up to date.

@@ -3,7 +3,8 @@ name: Reusable Security Scan
 # Security suite for any TriNodes repository.
 #
 #   CodeQL ............ static analysis (public repos, or private with GitHub Advanced Security)
-#   Dependency review . blocks PRs that add vulnerable dependencies (same condition as CodeQL)
+#   Dependency review . blocks PRs that add vulnerable dependencies (same condition as CodeQL;
+#                       the repository must have the Dependency graph enabled in its settings)
 #   npm audit ......... known vulnerabilities in package-lock.json
 #   OSV-Scanner ....... known vulnerabilities from the OSV database
 #   Gitleaks .......... secrets in the full git history
