@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/TriNodes/.github/main/assets/banner.svg" alt="TriNodes — Innovation That Scales" width="100%">
+  <img src="https://raw.githubusercontent.com/TriNodes/.github/main/assets/banner.png" alt="TriNodes — Innovation That Scales" width="720">
 </p>
 
 # 🎛️ TriNodes GitHub Organization Configuration
