@@ -114,6 +114,10 @@ jobs:
             echo "| \`$name\` | $visibility | $(mark "$codeowners") | $(mark "$workflows") | $(mark "$dependabot") | $(mark "$protection") |" >> report.md
           done < repos.tsv
 
+          if [ ! -s repos.tsv ]; then
+            echo "| _none_ | | | | | |" >> report.md
+          fi
+
           {
             echo
             echo "**Open gaps:** $problems"
@@ -144,7 +148,10 @@ jobs:
           fi
 
           title="Weekly Organization Health Report"
-          existing=$(gh issue list --state open --label health-check --json number --jq '.[0].number // empty')
+          # Find the previous report by title, not by label: the label may not exist in the
+          # target repository yet, and the issue is then created without it.
+          existing=$(gh issue list --state open --search "$title in:title" --json number,title \
+            --jq '[.[] | select(.title == "Weekly Organization Health Report")][0].number // empty')
 
           if [ -n "$existing" ]; then
             gh issue edit "$existing" --body-file report.md
