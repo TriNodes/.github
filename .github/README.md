@@ -76,7 +76,7 @@ jobs:
 
 | Workflow | Purpose | Main inputs | Permissions the **caller** must grant |
 |---|---|---|---|
-| `ci.yml` | Install, build, lint and test (Node.js) | `node_version` | `contents: read` |
+| `ci.yml` | Install, optional audit and type-check, lint, test and build (Node.js) | `node_version`, `typecheck`, `audit`, `audit_level`, `env` | `contents: read` |
 | `lint.yml` | `npm run lint` | `node_version` | `contents: read` |
 | `test.yml` | `npm test` + upload of test results | `node_version` | `contents: read` |
 | `security.yml` | CodeQL, dependency review, `npm audit`, OSV, Gitleaks, sensitive-file and workflow-permission scans | `languages`, `advanced_security`, `enable_osv`, `audit_level` | `contents: read`, `actions: read`, `security-events: write`, `issues: write` |

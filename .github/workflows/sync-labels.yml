@@ -1,106 +1,17 @@
-name: Reusable Sync Labels
+name: Sync labels
 
-# Creates/updates every label of .github/labels.json (from TriNodes/.github) in
-# the calling repository, and reports labels that are not in the catalogue.
-#
-# Usage:
-#   permissions:
-#     contents: read
-#     issues: write
-#   jobs:
-#     labels:
-#       uses: TriNodes/.github/.github/workflows/sync-labels.yml@main
+# Keeps this repository's labels in line with the organization catalogue (labels.json)
+# and opens one issue if it has labels that are not in it.
 
 on:
-  workflow_call:
-    inputs:
-      report_orphans:
-        description: Open (or update) one issue listing labels that are not in labels.json
-        type: boolean
-        default: true
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * 1" # Mondays at 06:00 UTC
 
 permissions:
   contents: read
   issues: write
 
 jobs:
-  sync-labels:
-    name: Sync labels
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-
-    env:
-      GH_TOKEN: ${{ github.token }}
-      # No checkout of the calling repository happens here, so `gh` needs to be told which repo to use.
-      GH_REPO: ${{ github.repository }}
-      LABELS_FILE: org-defaults/.github/labels.json
-
-    steps:
-      - name: Checkout org defaults
-        uses: actions/checkout@v7
-        with:
-          repository: TriNodes/.github
-          path: org-defaults
-
-      - name: Validate labels.json
-        run: |
-          if [ ! -f "$LABELS_FILE" ]; then
-            echo "::error::$LABELS_FILE not found in TriNodes/.github"
-            exit 1
-          fi
-          jq -e 'type == "array" and all(.[]; has("name") and has("color"))' "$LABELS_FILE" > /dev/null \
-            || { echo "::error::labels.json must be an array of objects with at least name and color"; exit 1; }
-
-      - name: Apply labels (create or update)
-        run: |
-          failed=0
-          while IFS= read -r row; do
-            name=$(jq -r '.name' <<< "$row")
-            color=$(jq -r '.color' <<< "$row")
-            desc=$(jq -r '.description // "Synchronized from TriNodes/.github"' <<< "$row")
-
-            if ! gh label create "$name" --color "$color" --description "$desc" --force; then
-              echo "::warning::Could not sync label: $name"
-              failed=$((failed + 1))
-            fi
-          done < <(jq -c '.[]' "$LABELS_FILE")
-
-          if [ "$failed" -gt 0 ]; then
-            echo "::error::$failed label(s) could not be synchronized"
-            exit 1
-          fi
-
-      - name: Detect orphan labels
-        id: orphan
-        run: |
-          # GitHub label names are case-insensitive, so compare in lower case.
-          gh label list --limit 500 --json name --jq '.[].name' | tr '[:upper:]' '[:lower:]' | sort -u > existing.txt
-          jq -r '.[].name' "$LABELS_FILE" | tr '[:upper:]' '[:lower:]' | sort -u > expected.txt
-          comm -23 existing.txt expected.txt > orphan.txt
-
-          if [ -s orphan.txt ]; then
-            echo "found=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "found=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Report orphan labels
-        if: steps.orphan.outputs.found == 'true' && inputs.report_orphans
-        run: |
-          title="Orphan labels found"
-          {
-            echo "## Orphan labels"
-            echo
-            echo "These labels exist in this repository but not in the organization catalogue (\`TriNodes/.github\` → \`.github/labels.json\`):"
-            echo
-            sed 's/^/- `/; s/$/`/' orphan.txt
-            echo
-            echo "Delete them, or propose adding them to the catalogue."
-          } > body.md
-
-          existing=$(gh issue list --state open --search "\"$title\" in:title" --json number --jq '.[0].number // empty')
-          if [ -n "$existing" ]; then
-            gh issue edit "$existing" --body-file body.md
-          else
-            gh issue create --title "$title" --body-file body.md --label governance
-          fi
+  labels:
+    uses: ./.github/workflows/sync-labels.yml
