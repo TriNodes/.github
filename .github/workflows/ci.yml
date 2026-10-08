@@ -1,13 +1,18 @@
 name: Reusable CI
 
-# Build, lint and test a Node.js project.
+# Install, then (optionally) audit and type-check, then lint, test and build a Node.js
+# project. Lint and test run before the build so the cheap checks fail first.
 #
 # Usage:
 #   jobs:
 #     ci:
 #       uses: TriNodes/.github/.github/workflows/ci.yml@main
 #       with:
-#         node_version: "22"
+#         node_version: "22"   # default
+#         typecheck: true      # npx tsc --noEmit
+#         audit: true          # npm audit --omit=dev
+#         env: |               # placeholders the build needs; NEVER put secrets here
+#           NEXT_PUBLIC_SITE_URL=https://example.com
 
 on:
   workflow_call:
@@ -16,13 +21,29 @@ on:
         description: Node.js version used to build and test
         type: string
         default: "22"
+      typecheck:
+        description: Run `npx tsc --noEmit` before linting
+        type: boolean
+        default: false
+      audit:
+        description: Run `npm audit --omit=dev` (production dependencies only) before linting
+        type: boolean
+        default: false
+      audit_level:
+        description: Minimum npm audit severity that fails the job (low, moderate, high, critical)
+        type: string
+        default: high
+      env:
+        description: Extra environment for the steps below, one KEY=VALUE per line. Visible in the workflow file, so only for non-secret placeholders the build requires.
+        type: string
+        default: ""
 
 permissions:
   contents: read
 
 jobs:
   ci:
-    name: Build, lint and test
+    name: Install, check and build
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -42,14 +63,38 @@ jobs:
           node-version: ${{ inputs.node_version }}
           cache: npm
 
+      - name: Export build environment
+        if: inputs.env != ''
+        env:
+          EXTRA_ENV: ${{ inputs.env }}
+        run: |
+          while IFS= read -r line; do
+            [ -z "$line" ] && continue
+            if ! [[ "$line" =~ ^[A-Za-z_][A-Za-z0-9_]*= ]]; then
+              echo "::error::Invalid env line (expected KEY=VALUE): $line"
+              exit 1
+            fi
+            echo "$line" >> "$GITHUB_ENV"
+          done <<< "$EXTRA_ENV"
+
       - name: Install dependencies
         run: npm ci
 
-      - name: Build (if present)
-        run: npm run build --if-present
+      - name: Audit production dependencies
+        if: inputs.audit
+        env:
+          AUDIT_LEVEL: ${{ inputs.audit_level }}
+        run: npm audit --omit=dev --audit-level="$AUDIT_LEVEL"
+
+      - name: Type-check
+        if: inputs.typecheck
+        run: npx tsc --noEmit
 
       - name: Lint (if present)
         run: npm run lint --if-present
 
       - name: Test (if present)
         run: npm test --if-present
+
+      - name: Build (if present)
+        run: npm run build --if-present

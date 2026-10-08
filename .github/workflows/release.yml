@@ -45,6 +45,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
+    # Two merges in quick succession start two releases that compute the same next
+    # version and race to push the same commit and tag ("tag already exists").
+    # Run them one at a time per repository; a waiting run is replaced by the newest
+    # one, which bumps from the latest main anyway.
+    concurrency:
+      group: release-${{ github.repository }}
+      cancel-in-progress: false
+
     steps:
       - name: Validate inputs
         env:

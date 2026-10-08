@@ -124,6 +124,9 @@ Exactly one `bump:*` label should be on a pull request. The reusable [`release.y
 ### ✔ Community labels
 `good first issue` · `help wanted` · `duplicate` · `invalid` · `wontfix`
 
+### ✔ Dependency ecosystem labels *(added by Dependabot)*
+`javascript` · `python`
+
 ### ✔ Client labels *(for multi-client repositories)*
 `client:<name>` — created per repository and therefore **not** part of the catalogue. Add the pattern to the repository's own label policy if you use it.
 
@@ -137,8 +140,8 @@ name: Sync labels
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
+  schedule:
+    - cron: "0 6 * * 1" # Mondays at 06:00 UTC
 
 permissions:
   contents: read
