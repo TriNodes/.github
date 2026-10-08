@@ -66,6 +66,9 @@ All repositories must have:
 - Sensitive-files scanning
 - Branch protection (or a ruleset) on the default branch
 
+> [!NOTE]
+> Some of these features depend on the organization's GitHub plan: branch protection and rulesets, secret scanning, CodeQL and dependency review are not available on **private** repositories without the matching plan or GitHub Advanced Security. Where a feature is unavailable the `security.yml` workflow skips it, and the checks that do not need it (Gitleaks, OSV-Scanner, `npm audit`, sensitive-files and workflow-permissions scans) still apply.
+
 The checks are provided by the reusable [`security.yml`](https://github.com/TriNodes/.github/blob/main/.github/workflows/security.yml) workflow and audited weekly by the organization health check. Security workflows **must not** be disabled.
 
 ---

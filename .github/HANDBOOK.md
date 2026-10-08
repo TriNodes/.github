@@ -37,7 +37,7 @@ All new repositories must:
 - Include a `CODEOWNERS` file that uses real GitHub teams (for example `@TriNodes/it-development-team`)
 - Include a `.github/dependabot.yml`
 - Include documentation (README with setup instructions)
-- Have secret scanning, push protection and branch protection enabled
+- Have secret scanning, push protection and branch protection enabled, wherever the GitHub plan supports them for that repository (see the [Security Policy](https://github.com/TriNodes/.github/blob/main/.github/SECURITY.md#-security-requirements-for-all-repositories))
 
 See the [README](https://github.com/TriNodes/.github/blob/main/.github/README.md#-adopting-this-in-a-new-repository) for the step-by-step checklist.
 

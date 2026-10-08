@@ -124,7 +124,7 @@ flowchart LR
 1. Create the repository from a TriNodes template (see the [Handbook](HANDBOOK.md)).
 2. Add a `ci.yml`, `security.yml` and `sync-labels.yml` caller workflow (snippets above).
 3. Add a `.github/dependabot.yml` and a `.github/CODEOWNERS` that uses real GitHub teams (for example `@TriNodes/it-development-team`).
-4. Enable branch protection (or a ruleset) on `main`: required status checks, required CODEOWNERS review, no force-push.
+4. Enable branch protection (or a ruleset) on `main`: required status checks, required CODEOWNERS review, no force-push. *Private repositories on the GitHub Free plan cannot use branch protection; in that case work through pull requests by convention.*
 5. Enable secret scanning + push protection in the repository settings.
 
 ---
