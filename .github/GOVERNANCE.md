@@ -72,7 +72,7 @@ flowchart LR
 - Dangerous permissions (`contents: write`, `id-token: write`, `write-all`) require a written justification in the workflow file or the pull request that adds them
 - The security suite must remain enabled
 - CI/CD must pass before merging
-- Branch protection (or a ruleset) must be enforced on the default branch
+- Branch protection (or a ruleset) must be enforced on the default branch wherever the organization's GitHub plan supports it (it is not available on private repositories of the Free plan; there, changes still go through pull requests by convention and CODEOWNERS review is requested automatically)
 
 ---
 

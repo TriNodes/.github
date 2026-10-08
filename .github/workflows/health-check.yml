@@ -97,8 +97,11 @@ jobs:
             if [ -z "$AUDIT_TOKEN" ]; then
               protection=n/a
             elif [ -n "$branch" ]; then
-              if gh api "repos/$ORG/$name/branches/$branch/protection" > /dev/null 2>&1; then
+              if err=$(gh api "repos/$ORG/$name/branches/$branch/protection" 2>&1 > /dev/null); then
                 protection=yes
+              elif grep -q "Upgrade to GitHub Pro" <<< "$err"; then
+                # The plan does not offer branch protection for this repository: not a gap we can close.
+                protection=n/a
               elif [ "$(gh api "repos/$ORG/$name/rules/branches/$branch" --jq 'length' 2>/dev/null || echo 0)" -gt 0 ]; then
                 protection=yes
               fi
@@ -114,6 +117,8 @@ jobs:
           {
             echo
             echo "**Open gaps:** $problems"
+            echo
+            echo "➖ = not applicable (for example branch protection is not offered by the GitHub plan for private repositories)."
             echo
             echo "_Issue templates, the pull request template, the Code of Conduct, Security Policy and Support guide are inherited from \`$ORG/.github\`, so they are not checked per repository._"
           } >> report.md
