@@ -1,5 +1,7 @@
-// Used by .github/workflows/commitlint.yml (wagoid/commitlint-github-action).
-module.exports = {
+// Used by .github/workflows/commitlint.yml (wagoid/commitlint-github-action v6).
+// ESM on purpose: the action's container has a root package.json with "type": "module",
+// so a CommonJS commitlint.config.js fails with "module is not defined in ES module scope".
+export default {
   extends: ["@commitlint/config-conventional"],
   ignores: [
     // Dependabot writes long, machine-generated bodies (tables of updates) that
